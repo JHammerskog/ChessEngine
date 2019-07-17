@@ -8,7 +8,6 @@ public class State {
 		return this.testArray;
 	}
 
-
 }
 
 // Until the board class is developed, I'll be using this abstracted class to
