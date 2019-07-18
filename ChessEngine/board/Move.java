@@ -4,20 +4,14 @@ import pieces.Piece;
 
 public class Move {
 
-	Player attackingPlayer; //
+	Player attackingPlayer;
 	Piece movedPiece;
 	Tile destinationTile;
 
-	private static int[] firstColumn = generateColumn(0); // maybe int array too slow in grand scale?
-	private static int[] secondColumn = generateColumn(1);
-	private static int[] seventhColumn = generateColumn(6);
-	private static int[] eighthColumn = generateColumn(7);
+	private static final int numberOfTiles = 64; // Set to tiles on a chess board
+	private static final int tilesPerColumn = 8; // Set to tiles per column on a chess board
 
-	private static int numberOfTiles = 64; // Tiles on a chess board
-	private static int tilesPerColumn = 8; // Tiles per column on a chess board
-
-	private static int[] generateColumn(int currentTilePosition) { // method to generate an int[] filled with all tiles
-																	// in the current column
+	private static int[] generateColumn(int currentTilePosition) { // Currently redundant, keeping for now
 
 		int[] columnArray = new int[8];
 		int tempTile = currentTilePosition;
@@ -35,10 +29,9 @@ public class Move {
 		return columnArray;
 	}
 
-	public static boolean contains(int[] column, int candidateCoordinate) { // method to check a column for a tile
-																			// coordinate
-		boolean result = false; // needed for exclusion
-								// work on finding a better solution for column identification
+	public static boolean contains(int[] column, int candidateCoordinate) { // Currently redundant, keeping for now
+
+		boolean result = false;
 
 		for (int i : column) {
 			if (i == candidateCoordinate) {
@@ -50,28 +43,22 @@ public class Move {
 		return result;
 	}
 
+	public static int calculateColumn(int currentPiecePosition) {
+		int result;
+
+		result = currentPiecePosition % tilesPerColumn;
+
+		return result;
+	}
+
+	/*
+	 * Although the above method reduces abstraction elsewhere, it only affects
+	 * classes which are specifically designed to play chess. This is preferable
+	 * solution compared with using int[] and for loops.
+	 */
+
 	public static boolean validDestinationTile(int destPosition) {
 		return (destPosition >= 0 && destPosition < numberOfTiles);
-	}
-
-	public static int getNumberOfTiles() {
-		return numberOfTiles;
-	}
-
-	public static int[] getFirstColumn() {
-		return firstColumn;
-	}
-
-	public static int[] getSecondColumn() {
-		return secondColumn;
-	}
-
-	public static int[] getSeventhColumn() {
-		return seventhColumn;
-	}
-
-	public static int[] getEighthColumn() {
-		return eighthColumn;
 	}
 
 }

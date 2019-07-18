@@ -25,32 +25,32 @@ public class Knight extends Piece {
 	}
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board Board) {
+	public Set<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and inhereted
+														// by King/pawn/Knight
 
 		Set<Move> legalMoves = Collections.EMPTY_SET; // Consider List instead of set and populate list with best moves
 														// first when improving code?
 		int candidateCoordinate;
 
-		// do Move.contains
-
-		if (Move.contains(Move.getFirstColumn(), this.piecePosition)) { // Find a better solution to identifying column
+		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column
 			possibleKnightMoves = firstColumnKnightMoves;
 		}
 
-		if (Move.contains(Move.getSecondColumn(), this.piecePosition)) {
+		if (identifyColumn(this.piecePosition) == 1) {
 			possibleKnightMoves = secondColumnKnightMoves;
 		}
-		if (Move.contains(Move.getSeventhColumn(), this.piecePosition)) {
+
+		if (identifyColumn(this.piecePosition) == 6) {
 			possibleKnightMoves = seventhColumnKnightMoves;
 		}
-		if (Move.contains(Move.getEighthColumn(), this.piecePosition)) {
+		if (identifyColumn(this.piecePosition) == 7) {
 			possibleKnightMoves = eighthColumnKnightMoves;
 		}
 
 		for (int candidateMove : possibleKnightMoves) {
 			candidateCoordinate = this.piecePosition + candidateMove;
 
-			if (Move.validDestinationTile(candidateCoordinate)) { // change true to "Valid tile" logic
+			if (Move.validDestinationTile(candidateCoordinate)) {
 
 				Tile candidateTile = Board.getTile(candidateCoordinate);
 
@@ -73,6 +73,12 @@ public class Knight extends Piece {
 		}
 
 		return legalMoves;
+	}
+
+	public int identifyColumn(int currentTileCoordinate) { // consider making this a method in the Piece class,
+															// alsoconsider giving this method the specific columns in
+															// question and returning a boolean
+		return Move.calculateColumn(currentTileCoordinate);
 	}
 
 }

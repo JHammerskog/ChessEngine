@@ -19,7 +19,8 @@ public class Bishop extends Piece {
 	}
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board Board) {
+	public Set<Move> calculateLegalMoves(Board board) {// the bulk of this function could be put in Piece and inhereted by Bishop/Queen/Rook
+
 
 		Set<Move> legalMoves = Collections.EMPTY_SET; // Consider List instead of set and populate list with best moves
 
@@ -30,11 +31,8 @@ public class Bishop extends Piece {
 
 			while (Move.validDestinationTile(candidateCoordinate)) {
 
-				if (Move.contains(Move.getFirstColumn(), candidateCoordinate)
-						&& ((candidateVector == -9) || (candidateVector == 7)) // This Move.contains will be a problem,
-																				// find
-																				// better solution
-						|| Move.contains(Move.getEighthColumn(), candidateCoordinate)
+				if (identifyColumn(this.piecePosition) == 0 && ((candidateVector == -9) || (candidateVector == 7))
+						|| identifyColumn(this.piecePosition) == 7
 								&& ((candidateVector == -7) || (candidateVector == 9))) {
 					break;
 				}
@@ -68,5 +66,9 @@ public class Bishop extends Piece {
 		}
 
 		return legalMoves;
+	}
+
+	public int identifyColumn(int currentTileCoordinate) {
+		return Move.calculateColumn(currentTileCoordinate);
 	}
 }

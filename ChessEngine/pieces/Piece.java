@@ -16,11 +16,22 @@ public abstract class Piece {
 		this.playerColour = playerColour;
 	}
 
-	public Set<Move> calculateLegalMoves(Board Board) {
+	public Set<Move> calculateLegalMoves(Board board) {
 		return null;
 	}
 
-	public Player getPieceColour() { // returns the colour of the piece
+	public Player getPieceColour() {
 		return this.playerColour;
 	}
+
+	/*
+	 * To do:
+	 * 
+	 * Piece children have duplicate code that could be resolved by the following
+	 * two improvements to the piece class:
+	 * 
+	 * Implement "Sliding Piece" method for bishop/rook/queen 
+	 * Implement "Jumping Piece" method for knight/pawn/king
+	 */
+
 }

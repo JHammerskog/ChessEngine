@@ -3,19 +3,19 @@ package pieces;
 import java.util.Collections;
 import java.util.Set;
 
+import board.Board;
 import board.Move;
 import board.Player;
-import board.Board;
 import board.Tile;
 
-public class Rook extends Piece {
+public class Queen extends Piece {
 
-	public Rook(int piecePosition, Player playerColour) {
+	private Queen(int piecePosition, Player playerColour) { // CHANGE BACK CONSTRUCTOR TO PRIVATE
 		super(piecePosition, playerColour);
 
 	}
 
-	int[] possibleRookMoves = { -8, -1, 1, 8 };
+	int[] possibleQueenMoves = { -9, -8, -7, -1, 1, 7, 8, 9 };
 
 	@Override
 	public Set<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and inhereted by Bishop/Queen/Rook
@@ -23,18 +23,20 @@ public class Rook extends Piece {
 		Set<Move> legalMoves = Collections.EMPTY_SET;
 		int candidateCoordinate;
 
-		for (int candidateVector : possibleRookMoves) {
-			candidateCoordinate = this.piecePosition;
+		for (int candidateVector : possibleQueenMoves) {
+			candidateCoordinate = this.piecePosition; // This is the root of your problems
 
-			while (Move.validDestinationTile(candidateCoordinate)) {
+			while (Move.validDestinationTile(candidateCoordinate)) { // This while loop keeps going
 
-				if ((identifyColumn(candidateCoordinate) == 0 && (candidateVector == -1))
-						|| (identifyColumn(candidateCoordinate) == 7 && (candidateVector == 1))) {
+				if ((identifyColumn(candidateCoordinate) == 0
+						&& (candidateVector == -1 || candidateVector == -9 || candidateVector == 7))
+						|| ((identifyColumn(candidateCoordinate) == 7
+								&& (candidateVector == 1 || candidateVector == -7 || candidateVector == 9)))) {
+
 					break;
 				}
 
-				candidateCoordinate += candidateVector; // here you alter the candidateCoordinate and then check again,
-														// meaning the above exception checking is useless
+				candidateCoordinate += candidateVector; // This here means you will go around the loop again and again
 
 				if (Move.validDestinationTile(candidateCoordinate)) {
 					Tile candidateTile = Board.getTile(candidateCoordinate);
@@ -51,7 +53,7 @@ public class Rook extends Piece {
 
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(new Move());
-							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
+
 						}
 						break;
 					}
@@ -68,4 +70,5 @@ public class Rook extends Piece {
 	public int identifyColumn(int currentTileCoordinate) {
 		return Move.calculateColumn(currentTileCoordinate);
 	}
+
 }
