@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import board.Board;
+import board.BoardUtility;
 import board.Move;
 import board.Player;
 import board.Tile;
+import board.Move.NonAttackingMove;
 
 
 
@@ -28,13 +30,13 @@ public class King extends Piece {
 		for (int candidateMove : possibleKingMoves) {
 			candidateCoordinate = this.piecePosition + candidateMove;
 
-			if (Move.validDestinationTile(candidateCoordinate)) { 
+			if (BoardUtility.validDestinationTile(candidateCoordinate)) { 
 
-				Tile candidateTile = Board.getTile(candidateCoordinate); 
+				Tile candidateTile = board.getTile(candidateCoordinate); 
 
 				if (!candidateTile.tileIsOccupied() /*&& tile is not attacked*/) {
 
-					legalMoves.add(new Move()); // Move logic not yet finished
+					legalMoves.add(new NonAttackingMove(board, this, candidateTile)); // Move logic not yet finished
 					// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 				} else {
@@ -43,7 +45,7 @@ public class King extends Piece {
 					Player pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 					if (pieceColour != this.playerColour /* && piece is not defended */) {
-						legalMoves.add(new Move());
+						legalMoves.add(new Move()); // AttackingMove
 					}
 				}
 			}

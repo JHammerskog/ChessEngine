@@ -3,9 +3,11 @@ package pieces;
 import java.util.Collections;
 import java.util.Set;
 
-import board.Move;
+
 import board.Player;
 import board.Board;
+import board.BoardUtility;
+import board.Move;
 import board.Tile;
 
 public class Bishop extends Piece {
@@ -29,7 +31,7 @@ public class Bishop extends Piece {
 		for (int candidateVector : bishopDiagonals) {
 			candidateCoordinate = this.piecePosition;
 
-			while (Move.validDestinationTile(candidateCoordinate)) {
+			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
 
 				if (identifyColumn(this.piecePosition) == 0 && ((candidateVector == -9) || (candidateVector == 7))
 						|| identifyColumn(this.piecePosition) == 7
@@ -39,12 +41,12 @@ public class Bishop extends Piece {
 
 				candidateCoordinate += candidateVector;
 
-				if (Move.validDestinationTile(candidateCoordinate)) {
-					Tile candidateTile = Board.getTile(candidateCoordinate);
+				if (BoardUtility.validDestinationTile(candidateCoordinate)) {
+					Tile candidateTile = board.getTile(candidateCoordinate);
 
 					if (!candidateTile.tileIsOccupied()) {
 
-						legalMoves.add(new Move());
+						legalMoves.add(new NonAttackingMove(board, this, candidateTile));
 						// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 					} else {
@@ -53,7 +55,7 @@ public class Bishop extends Piece {
 						Player pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new Move());
+							legalMoves.add(new Move()); // AttackingMove
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 						}
 						break;
@@ -68,7 +70,4 @@ public class Bishop extends Piece {
 		return legalMoves;
 	}
 
-	public int identifyColumn(int currentTileCoordinate) {
-		return Move.calculateColumn(currentTileCoordinate);
-	}
 }

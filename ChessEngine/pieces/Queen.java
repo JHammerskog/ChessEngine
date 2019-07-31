@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import board.Board;
+import board.BoardUtility;
 import board.Move;
 import board.Player;
 import board.Tile;
+import board.Move.NonAttackingMove;
 
 public class Queen extends Piece {
 
@@ -24,9 +26,9 @@ public class Queen extends Piece {
 		int candidateCoordinate;
 
 		for (int candidateVector : possibleQueenMoves) {
-			candidateCoordinate = this.piecePosition; // This is the root of your problems
+			candidateCoordinate = this.piecePosition; 
 
-			while (Move.validDestinationTile(candidateCoordinate)) { // This while loop keeps going
+			while (BoardUtility.validDestinationTile(candidateCoordinate)) { 
 
 				if ((identifyColumn(candidateCoordinate) == 0
 						&& (candidateVector == -1 || candidateVector == -9 || candidateVector == 7))
@@ -36,14 +38,14 @@ public class Queen extends Piece {
 					break;
 				}
 
-				candidateCoordinate += candidateVector; // This here means you will go around the loop again and again
+				candidateCoordinate += candidateVector; 
 
-				if (Move.validDestinationTile(candidateCoordinate)) {
-					Tile candidateTile = Board.getTile(candidateCoordinate);
+				if (BoardUtility.validDestinationTile(candidateCoordinate)) {
+					Tile candidateTile = board.getTile(candidateCoordinate);
 
 					if (!candidateTile.tileIsOccupied()) { 
 
-						legalMoves.add(new Move());
+						legalMoves.add(new NonAttackingMove(board, this, candidateTile));
 						//System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 					} else {
@@ -52,7 +54,7 @@ public class Queen extends Piece {
 						Player pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new Move());
+							legalMoves.add(new Move()); // AttackingMove
 
 						}
 						break;
@@ -65,10 +67,6 @@ public class Queen extends Piece {
 		}
 
 		return legalMoves;
-	}
-
-	public int identifyColumn(int currentTileCoordinate) {
-		return Move.calculateColumn(currentTileCoordinate);
 	}
 
 }

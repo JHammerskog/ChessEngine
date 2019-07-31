@@ -20,26 +20,26 @@ public abstract class Tile { // Class that defines the 64 tiles
 
 	public abstract Piece getPiece();
 
-	private Map<Integer, UnoccupiedTile> emptyTiles = makeAllEmptyTiles();
+	private static Map<Integer, UnoccupiedTile> emptyTiles = makeAllEmptyTiles();
 
-	private Map<Integer, UnoccupiedTile> makeAllEmptyTiles() {
+	private static Map<Integer, UnoccupiedTile> makeAllEmptyTiles() {
 		final Map<Integer, UnoccupiedTile> emptyTiles = new HashMap<>();
 
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < BoardUtility.getNumberOfTiles(); i++) {
 			emptyTiles.put(i, new UnoccupiedTile(i));
 		}
 
-		return Collections.unmodifiableMap(emptyTiles); // Makes the map immutable so it cant be unintentionally
-														// modified
+		return Collections.unmodifiableMap(emptyTiles); // See how much immutability you can work into rest of
+														// application
 	}
 
-	public Tile createTile(final int coordinate, final Piece piece) { // Tile Factory
+	public static Tile createTile(final int coordinate, final Piece piece) { // Tile Factory
 		return piece != null ? new OccupiedTile(coordinate, piece) : emptyTiles.get(coordinate);
-		// if piece is not null (aka there is a piece on the tile, make a new Tile with
+		// if piece is not null (aka there is a piece on the tile) make a new Tile with
 		// that piece on it : Otherwise make an empty tile at coordinate
 	}
 
-	private final class OccupiedTile extends Tile { // tiles with piece on them
+	private static final class OccupiedTile extends Tile { // tiles with piece on them
 
 		private final Piece occupyingPiece;
 
@@ -62,7 +62,7 @@ public abstract class Tile { // Class that defines the 64 tiles
 
 	}
 
-	public final class UnoccupiedTile extends Tile { // Tiles with no current pieces
+	public static final class UnoccupiedTile extends Tile { // Tiles with no current pieces
 
 		private UnoccupiedTile(int coordinate) {
 			super(coordinate);

@@ -6,7 +6,9 @@ import java.util.Set;
 import board.Move;
 import board.Player;
 import board.Board;
+import board.BoardUtility;
 import board.Tile;
+import board.Move.NonAttackingMove;
 
 public class Rook extends Piece {
 
@@ -26,7 +28,7 @@ public class Rook extends Piece {
 		for (int candidateVector : possibleRookMoves) {
 			candidateCoordinate = this.piecePosition;
 
-			while (Move.validDestinationTile(candidateCoordinate)) {
+			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
 
 				if ((identifyColumn(candidateCoordinate) == 0 && (candidateVector == -1))
 						|| (identifyColumn(candidateCoordinate) == 7 && (candidateVector == 1))) {
@@ -36,12 +38,12 @@ public class Rook extends Piece {
 				candidateCoordinate += candidateVector; // here you alter the candidateCoordinate and then check again,
 														// meaning the above exception checking is useless
 
-				if (Move.validDestinationTile(candidateCoordinate)) {
-					Tile candidateTile = Board.getTile(candidateCoordinate);
+				if (BoardUtility.validDestinationTile(candidateCoordinate)) {
+					Tile candidateTile = board.getTile(candidateCoordinate);
 
 					if (!candidateTile.tileIsOccupied()) { 
 
-						legalMoves.add(new Move());
+						legalMoves.add(new NonAttackingMove(board, this, candidateTile));
 						//System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 					} else {
@@ -50,7 +52,7 @@ public class Rook extends Piece {
 						Player pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new Move());
+							legalMoves.add(new Move()); // AttackingMove
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 						}
 						break;
@@ -65,7 +67,4 @@ public class Rook extends Piece {
 		return legalMoves;
 	}
 
-	public int identifyColumn(int currentTileCoordinate) {
-		return Move.calculateColumn(currentTileCoordinate);
-	}
 }

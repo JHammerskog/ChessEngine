@@ -6,7 +6,9 @@ import java.util.Set;
 import board.Move;
 import board.Player;
 import board.Board;
+import board.BoardUtility;
 import board.Tile;
+import board.Move.NonAttackingMove;
 
 public class Knight extends Piece {
 
@@ -32,7 +34,7 @@ public class Knight extends Piece {
 														// first when improving code?
 		int candidateCoordinate;
 
-		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column
+		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column, Maybe if 2 > && < 7? else do below
 			possibleKnightMoves = firstColumnKnightMoves;
 		}
 
@@ -50,13 +52,13 @@ public class Knight extends Piece {
 		for (int candidateMove : possibleKnightMoves) {
 			candidateCoordinate = this.piecePosition + candidateMove;
 
-			if (Move.validDestinationTile(candidateCoordinate)) {
+			if (BoardUtility.validDestinationTile(candidateCoordinate)) {
 
-				Tile candidateTile = Board.getTile(candidateCoordinate);
+				Tile candidateTile = board.getTile(candidateCoordinate);
 
 				if (!candidateTile.tileIsOccupied()) {
 
-					legalMoves.add(new Move()); // Move logic not yet finished
+					legalMoves.add(new NonAttackingMove(board, this, candidateTile)); // Move logic not yet finished
 					// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 				} else {
@@ -65,7 +67,7 @@ public class Knight extends Piece {
 					Player pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 					if (pieceColour != this.playerColour) {
-						legalMoves.add(new Move());
+						legalMoves.add(new Move()); // AttackingMove
 					}
 				}
 			}
@@ -73,12 +75,6 @@ public class Knight extends Piece {
 		}
 
 		return legalMoves;
-	}
-
-	public int identifyColumn(int currentTileCoordinate) { // consider making this a method in the Piece class,
-															// alsoconsider giving this method the specific columns in
-															// question and returning a boolean
-		return Move.calculateColumn(currentTileCoordinate);
 	}
 
 }
