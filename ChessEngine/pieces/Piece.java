@@ -5,7 +5,7 @@ import java.util.Set;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
-import board.Player;
+import board.Alliance;
 
 /***
  * @author 1200046h The Piece class and its children define the logic of moving
@@ -15,10 +15,10 @@ import board.Player;
 public abstract class Piece {
 
 	protected final int piecePosition;
-	protected final Player playerColour;
+	protected final Alliance playerColour;
 	protected boolean isFirstMove; // Initially set to true, for pawns and castling
 
-	protected Piece(final int piecePosition, final Player playerColour) {
+	protected Piece(final int piecePosition, final Alliance playerColour) {
 		this.piecePosition = piecePosition;
 		this.playerColour = playerColour;
 	}
@@ -27,17 +27,33 @@ public abstract class Piece {
 		return null;
 	}
 
-	public Player getPieceColour() {
+	public Alliance getPieceColour() {
 		return this.playerColour;
 	}
-	
+
 	public int getPiecePosition() {
 		return this.piecePosition;
 	}
 
-	public int identifyColumn(int currentTileCoordinate) { // Needed for MoveExceptions for all pieces, maybe re-home
-															// this method elsewhere?
+	public int identifyColumn(int currentTileCoordinate) { // Needed for MoveExceptions for all pieces
 		return BoardUtility.calculateColumn(currentTileCoordinate);
+	}
+
+	public enum PieceType { // Add king logic here later
+
+		BISHOP("B"), KING("K"), KNIGHT("N"), PAWN("P"), QUEEN("Q"), ROOK("R");
+
+		private String pieceName;
+
+		PieceType(String pieceName) {
+
+			this.pieceName = pieceName;
+		}
+
+		public String toString() {
+			return this.pieceName;
+		}
+
 	}
 
 	/*

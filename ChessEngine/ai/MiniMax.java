@@ -2,7 +2,7 @@ package ai;
 
 import java.util.LinkedList;
 
-public class MiniMax {
+public class MiniMax { // redundant code, refactor later
 
 	State state; // will be replaced with "Board" class when developed
 
@@ -15,7 +15,7 @@ public class MiniMax {
 		int selectedMove;
 
 		if (maximizingPlayer) {
-			selectedMove = maximize(this.state, depth);	
+			selectedMove = maximize(this.state, depth);
 
 		} else {
 			selectedMove = minimize(this.state, depth);
@@ -51,7 +51,7 @@ public class MiniMax {
 		E element;
 
 		public Node(Comparable elem) {
-		
+
 		}
 
 		public int getScore() {
@@ -66,8 +66,7 @@ public class MiniMax {
 
 	public class Tree {
 		private Node root;
-		
-		
+
 		public Node insert(Node top, Comparable elem) {
 			if (top == null) {
 				Node newNode = new Node(elem);
@@ -79,9 +78,9 @@ public class MiniMax {
 			} else { // refactor for minimax
 				int comp = elem.compareTo(top.element);
 				if (comp < 0) {
-					//top.left = insert(top.left, elem);
+					// top.left = insert(top.left, elem);
 				} else if (comp > 0) {
-					//top.right = insert(top.right, elem);
+					// top.right = insert(top.right, elem);
 				}
 			}
 			return top;

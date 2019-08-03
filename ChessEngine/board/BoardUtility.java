@@ -5,9 +5,9 @@ package board;
  */
 public class BoardUtility { // This entire class should be moved to a board utility class
 
-	private static final int numberOfTiles = 64; // Set to tiles on a chess board
+	protected static final int numberOfTiles = 64; // Set to tiles on a chess board
 
-	private static final int tilesPerColumn = 8; // Set to tiles per column on a chess board
+	protected static final int tilesPerColumn = 8; // Set to tiles per column on a chess board
 
 	private static int[] generateColumn(int currentTilePosition) { // Currently redundant, keeping for now
 

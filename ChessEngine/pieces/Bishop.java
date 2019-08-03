@@ -3,28 +3,27 @@ package pieces;
 import java.util.Collections;
 import java.util.Set;
 
-
-import board.Player;
+import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
 import board.Tile;
+import board.Move.*;
 
 public class Bishop extends Piece {
 
-	int[] bishopDiagonals = { -9, -7, 7, 9 };
+	private int[] bishopDiagonals = { -9, -7, 7, 9 };
 
-	// EXCLUSIONS BISHOP: -9 & 7 when on first column, -7 & 9 when on 8th column
-
-	private Bishop(int piecePosition, Player playerColour) {
+	public Bishop(int piecePosition, Alliance playerColour) {
 		super(piecePosition, playerColour);
 	}
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board board) {// the bulk of this function could be put in Piece and inhereted by Bishop/Queen/Rook
+	public Set<Move> calculateLegalMoves(Board board) {// the bulk of this function could be put in Piece and inhereted
+														// by Bishop/Queen/Rook
 
-
-		Set<Move> legalMoves = Collections.EMPTY_SET; // Consider List instead of set and populate list with best moves
+		Set<Move> legalMoves = Collections.EMPTY_SET; // List will probably be better than set for concatenating all
+														// legal moves for a player
 
 		int candidateCoordinate;
 
@@ -52,10 +51,10 @@ public class Bishop extends Piece {
 					} else {
 
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
-						Player pieceColour = pieceAtCandidateDestination.getPieceColour();
+						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new Move()); // AttackingMove
+							legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination)); // AttackingMove
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 						}
 						break;
@@ -68,6 +67,10 @@ public class Bishop extends Piece {
 		}
 
 		return legalMoves;
+	}
+
+	public String toString() {
+		return Piece.PieceType.BISHOP.toString();
 	}
 
 }

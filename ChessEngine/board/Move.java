@@ -9,25 +9,25 @@ import pieces.Piece;
 
 public class Move {
 
-	Board board;
-	Piece movedPiece;
-	Tile destinationTile;
+	protected Board board;
+	protected Piece movedPiece;
+	protected Tile destinationTile;
 
 	public Move(Board board, Piece movedPiece, Tile destinationTile) {
 		this.board = board;
 		this.movedPiece = movedPiece;
 		this.destinationTile = destinationTile;
 	}
-	public final class NonAttackingMove extends Move { // Remember to make this work
+	public static final class NonAttackingMove extends Move { // Remember to make this work
 
 		public NonAttackingMove(Board board, Piece movedPiece, Tile destinationTile) {
 			super(board, movedPiece, destinationTile);
 		}
 	}
 	
-	public final class AttackingMove extends Move {
+	public static final class AttackingMove extends Move {
 
-		Piece attackedPiece;
+		protected Piece attackedPiece;
 
 		public AttackingMove(Board board, Piece movedPiece, Tile destinationTile, Piece attackedPiece) {
 			super(board, movedPiece, destinationTile);

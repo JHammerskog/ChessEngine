@@ -7,7 +7,7 @@ import pieces.Piece;
 import java.util.Collections;
 import java.util.HashMap;
 
-public abstract class Tile { // Class that defines the 64 tiles
+public abstract class Tile { // SuperClass that defines general tile logic
 
 	private final int coordinate; // 0 = A8, 63 = H1
 	// private&final because all coordinates should be set at initialization
@@ -33,7 +33,9 @@ public abstract class Tile { // Class that defines the 64 tiles
 														// application
 	}
 
-	public static Tile createTile(final int coordinate, final Piece piece) { // Tile Factory
+	public static Tile createTile(final int coordinate, final Piece piece) { // Make more readable
+
+		// Tile Factory
 		return piece != null ? new OccupiedTile(coordinate, piece) : emptyTiles.get(coordinate);
 		// if piece is not null (aka there is a piece on the tile) make a new Tile with
 		// that piece on it : Otherwise make an empty tile at coordinate
@@ -60,6 +62,12 @@ public abstract class Tile { // Class that defines the 64 tiles
 			return this.occupyingPiece;
 		}
 
+		public String toString() {
+			if (this.getPiece().getPieceColour() == Alliance.BLACK) {
+				return this.getPiece().toString().toLowerCase();
+			}
+			return this.getPiece().toString();
+		}
 	}
 
 	public static final class UnoccupiedTile extends Tile { // Tiles with no current pieces
@@ -78,6 +86,10 @@ public abstract class Tile { // Class that defines the 64 tiles
 		@Override
 		public Piece getPiece() {
 			return null;
+		}
+
+		public String toString() {
+			return "-";
 		}
 	}
 

@@ -4,25 +4,25 @@ import java.util.Collections;
 import java.util.Set;
 
 import board.Move;
-import board.Player;
+import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Tile;
-import board.Move.NonAttackingMove;
+import board.Move.*;
 
 public class Knight extends Piece {
 
-	int[] possibleKnightMoves = { -17, -15, -10, -6, 6, 10, 15, 17 }; // Possible moves on column 3-6
+	private int[] possibleKnightMoves = { -17, -15, -10, -6, 6, 10, 15, 17 }; // Possible moves on column 3-6
 
 	// Above variable lists a no-exception knight move scenario, below is each
 	// column exception
 
-	int[] firstColumnKnightMoves = { -15, -6, 10, 17 };
-	int[] secondColumnKnightMoves = { -17, -15, -6, 10, 15, 17 };
-	int[] seventhColumnKnightMoves = { -17, -15, -10, 6, 15, 17 };
-	int[] eighthColumnKnightMoves = { -17, -10, 6, 15 };
+	private int[] firstColumnKnightMoves = { -15, -6, 10, 17 };
+	private int[] secondColumnKnightMoves = { -17, -15, -6, 10, 15, 17 };
+	private int[] seventhColumnKnightMoves = { -17, -15, -10, 6, 15, 17 };
+	private int[] eighthColumnKnightMoves = { -17, -10, 6, 15 };
 
-	private Knight(final int piecePosition, final Player playerColour) {
+	public Knight(final int piecePosition, final Alliance playerColour) {
 		super(piecePosition, playerColour);
 	}
 
@@ -34,11 +34,12 @@ public class Knight extends Piece {
 														// first when improving code?
 		int candidateCoordinate;
 
-		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column, Maybe if 2 > && < 7? else do below
+		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column, Maybe if 2 >
+															// && < 7? else do below
 			possibleKnightMoves = firstColumnKnightMoves;
 		}
 
-		if (identifyColumn(this.piecePosition) == 1) {
+		if (identifyColumn(this.piecePosition) == 1) { // Refactor this if you have time at the end
 			possibleKnightMoves = secondColumnKnightMoves;
 		}
 
@@ -58,16 +59,17 @@ public class Knight extends Piece {
 
 				if (!candidateTile.tileIsOccupied()) {
 
-					legalMoves.add(new NonAttackingMove(board, this, candidateTile)); // Move logic not yet finished
+					legalMoves.add(new NonAttackingMove(board, this, candidateTile)); // Move logic not yet
+																						// finished
 					// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 				} else {
 
 					Piece pieceAtCandidateDestination = candidateTile.getPiece();
-					Player pieceColour = pieceAtCandidateDestination.getPieceColour();
+					Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 					if (pieceColour != this.playerColour) {
-						legalMoves.add(new Move()); // AttackingMove
+						legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination)); // AttackingMove
 					}
 				}
 			}
@@ -75,6 +77,10 @@ public class Knight extends Piece {
 		}
 
 		return legalMoves;
+	}
+
+	public String toString() {
+		return Piece.PieceType.KNIGHT.toString();
 	}
 
 }

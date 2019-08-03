@@ -1,6 +1,6 @@
 package ai;
 
-public class State {
+public class State {// redundant code, refactor later
 
 	private int[] testArray = { -3, -2, -1, 1, 2, 3 };
 
