@@ -12,28 +12,56 @@ import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
+import pieces.Piece.PieceType;
+import player.BlackPlayer;
+import player.WhitePlayer;
 import board.Tile;
 
 /***
- * @author 1200046h This class is responsible for creating an instance of a
- *         board/position
+ * This class describes the logic of
  */
 
-// TO DO: Create an instance of a board
 public class Board {
 
 	private List<Tile> chessBoardPosition;
-	private List<Piece> activeWhitePieces;
+
+	private List<Piece> activeWhitePieces; // Variables concerned with tracking pieces/playerstatus
 	private List<Piece> activeBlackPieces;
+	
+	private WhitePlayer whitePlayer; // Use these to determine currentPlayer (currently in ther Player class)
+	private BlackPlayer blackPlayer;
 
 	private Board(Builder builder) {
 		this.chessBoardPosition = populateBoard(builder);
 		this.activeBlackPieces = calculateActivePieces(this.chessBoardPosition, Alliance.BLACK);
 		this.activeWhitePieces = calculateActivePieces(this.chessBoardPosition, Alliance.WHITE);
+
+		// The below variables are needed for check evaluation etc, a board needs to
+		// keep track of the possible legal moves for each player.
+		List<Move> whiteLegalMovesInPosition = calculateLegalMovesForPosition(this.activeWhitePieces);
+		List<Move> blackLegalMovesInPosition = calculateLegalMovesForPosition(this.activeBlackPieces);
+
+		this.whitePlayer = new WhitePlayer(this, whiteLegalMovesInPosition, blackLegalMovesInPosition);
+		this.blackPlayer = new BlackPlayer(this, whiteLegalMovesInPosition, blackLegalMovesInPosition);
+
 	}
 
-	// Board needs to know all legal moves for each player in a position
-	// calculateLegalMovesForPosition() ?
+	public Piece findKing(Alliance alliance) {
+		Piece nullPlaceHolder = null;
+		List<Piece> activePieces = new ArrayList<>();
+		if (alliance == Alliance.BLACK) {
+			activePieces = activeBlackPieces;
+		} else {
+			activePieces = activeWhitePieces;
+		}
+
+		for (Piece piece : activePieces) { // Add PieceType in constructor of piece
+			if (piece.getPieceType() == PieceType.KING) {
+				return piece;
+			}
+		}
+		throw new RuntimeException("Illegal game state. The black player must have a king");
+	}
 
 	private List<Tile> populateBoard(Builder builder) { // needs testing
 
@@ -55,8 +83,23 @@ public class Board {
 				}
 			}
 		}
-
 		return activePiecesForPlayer;
+	}
+
+	private List<Move> calculateLegalMovesForPosition(List<Piece> activePieces) {
+		List<Move> legalMoves = new ArrayList<>();
+
+		for (Piece piece : activePieces) {
+			legalMoves.addAll(piece.calculateLegalMoves(this));
+			// Changed all sets to Lists because of compatibility with this method
+		}
+		return legalMoves;
+	}
+
+	// Use builder pattern to create an instance of a board position
+
+	public Tile getTile(int tileCoordinate) {
+		return this.chessBoardPosition.get(tileCoordinate);
 	}
 
 	public String toString() {
@@ -72,8 +115,30 @@ public class Board {
 		return strbuilder.toString();
 	}
 
-	// Use builder pattern to create an instance of a board position
+	public static class Builder { // This class actually builds a board
+		Map<Integer, Piece> pieceConfig;
+		Alliance nextPlayerToMove;
 
+		public Builder() {
+			this.pieceConfig = new HashMap<>();
+		}
+
+		public Builder setPiece(Piece piece) {
+			this.pieceConfig.put(piece.getPiecePosition(), piece);
+			return this;
+		}
+
+		public Builder setNextPlayerToMove(Alliance nextPlayerToMove) {
+			this.nextPlayerToMove = nextPlayerToMove;
+			return this;
+
+		}
+
+		public Board build() {
+			return new Board(this);
+		}
+	}
+	
 	public static Board createStartingPosition() { // Use this type of method to create specific positions
 		Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
@@ -118,31 +183,19 @@ public class Board {
 		return b.build();
 	}
 
-	public static class Builder {
-		Map<Integer, Piece> pieceConfig;
-		Alliance nextPlayerToMove;
+	public static Board KRKMateInTwo() {
+		// This is an easy King-Rook-King (KRK)puzzle where white can check mate black
+		// in two moves.
 
-		public Builder() {
-			this.pieceConfig = new HashMap<>();
-		}
+		Builder b = new Builder();
+		b.setNextPlayerToMove(Alliance.WHITE); // White to move
 
-		public Builder setPiece(Piece piece) {
-			this.pieceConfig.put(piece.getPiecePosition(), piece);
-			return this;
-		}
+		b.setPiece(new King(4, Alliance.BLACK));
 
-		public Builder setNextPlayerToMove(Alliance nextPlayerToMove) {
-			this.nextPlayerToMove = nextPlayerToMove;
-			return this;
+		b.setPiece(new King(11, Alliance.WHITE));
+		b.setPiece(new Rook(19, Alliance.WHITE)); // Rook can be set to any number 16-63
+		return b.build();
 
-		}
-
-		public Board build() {
-			return new Board(this);
-		}
 	}
 
-	public Tile getTile(int tileCoordinate) {
-		return this.chessBoardPosition.get(tileCoordinate);
-	}
 }

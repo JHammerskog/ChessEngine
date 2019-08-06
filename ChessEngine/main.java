@@ -4,7 +4,8 @@ public class main {
 
 	public static void main(String[] args) {
 
-		Board b = Board.createStartingPosition();
+		//Board b = Board.createStartingPosition();
+		Board b = Board.KRKMateInTwo();
 
 		System.out.println(b);
 

@@ -1,14 +1,16 @@
 package pieces;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import board.Move;
 import board.Alliance;
 import board.Board;
 import board.BoardUtility;
+import board.Move;
+import board.Move.AttackingMove;
+import board.Move.NonAttackingMove;
+import pieces.Piece.PieceType;
 import board.Tile;
-import board.Move.*;
 
 public class Knight extends Piece {
 
@@ -23,15 +25,16 @@ public class Knight extends Piece {
 	private int[] eighthColumnKnightMoves = { -17, -10, 6, 15 };
 
 	public Knight(final int piecePosition, final Alliance playerColour) {
-		super(piecePosition, playerColour);
+		super(piecePosition, playerColour, PieceType.KNIGHT);
 	}
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and inhereted
-														// by King/pawn/Knight
+	public List<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and
+															// inhereted
+															// by King/pawn/Knight
 
-		Set<Move> legalMoves = Collections.EMPTY_SET; // Consider List instead of set and populate list with best moves
-														// first when improving code?
+		List<Move> legalMoves = new ArrayList<>(); // Consider List instead of set and populate list with best moves
+													// first when improving code?
 		int candidateCoordinate;
 
 		if ((identifyColumn(this.piecePosition) == 0)) { // Find a better solution to identifying column, Maybe if 2 >
@@ -59,8 +62,8 @@ public class Knight extends Piece {
 
 				if (!candidateTile.tileIsOccupied()) {
 
-					legalMoves.add(new NonAttackingMove(board, this, candidateTile)); // Move logic not yet
-																						// finished
+					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate)); // Move logic not yet
+					// finished
 					// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 				} else {
@@ -69,7 +72,8 @@ public class Knight extends Piece {
 					Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 					if (pieceColour != this.playerColour) {
-						legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination)); // AttackingMove
+						legalMoves
+								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination)); // AttackingMove
 					}
 				}
 			}

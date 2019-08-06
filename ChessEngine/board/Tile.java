@@ -10,7 +10,6 @@ import java.util.HashMap;
 public abstract class Tile { // SuperClass that defines general tile logic
 
 	private final int coordinate; // 0 = A8, 63 = H1
-	// private&final because all coordinates should be set at initialization
 
 	private Tile(int coordinate) {
 		this.coordinate = coordinate;

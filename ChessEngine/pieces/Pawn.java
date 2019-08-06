@@ -1,33 +1,33 @@
 package pieces;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
+import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
-
-import board.Alliance;
+import board.Move.AttackingMove;
+import board.Move.NonAttackingMove;
+import pieces.Piece.PieceType;
 import board.Tile;
-import board.Move.*;
 
 public class Pawn extends Piece {
 
 	public Pawn(int piecePosition, Alliance playerColour) {
-		super(piecePosition, playerColour);
+		super(piecePosition, playerColour, PieceType.PAWN);
 
 	}
 
 	private int pawnVectors[] = { 7, 8, 9, 16 };
 
-	public Set<Move> calculateLegalMoves(Board board) {
-		Set<Move> legalMoves = Collections.EMPTY_SET;
+	public List<Move> calculateLegalMoves(Board board) {
+		List<Move> legalMoves = new ArrayList<>();
 		int candidateCoordinate;
 
 		if (this.getPieceColour() == Alliance.WHITE) { // Not generic, maybe add isWhite/black method to Player enum
-			for (int i : pawnVectors) {
-				pawnVectors[i] = -pawnVectors[i]; // White pawns move in the negative opposite of black
-				// potentially find a better way to determine direction of pawns
+			for (int i = 0; i < pawnVectors.length; i++) {
+				pawnVectors[i] = -pawnVectors[i]; // maybe find a better way for directionality
 			}
 		}
 		for (int candidateVector : pawnVectors) {
@@ -42,14 +42,14 @@ public class Pawn extends Piece {
 
 			if (candidateVector == 8 && !candidateTile.tileIsOccupied()) {
 
-				legalMoves.add(new NonAttackingMove(board, this, candidateTile));
+				legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 			} else if ((candidateVector == 16 || candidateVector == -16)
 					&& this.isFirstMove /* && isBlack && on 7th row || isWhite and on 2nd row */) { // make more generic
 				final int tileBeforeCandidate = (candidateCoordinate - candidateVector) + (candidateVector / 2);
 				if (!candidateTile.tileIsOccupied() || !board.getTile(tileBeforeCandidate).tileIsOccupied()) {
 					// Both squares in front of pawn must be unoccupied for it to be a legal move
 
-					legalMoves.add(new NonAttackingMove(board, this, candidateTile));
+					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 				}
 			} else if (candidateVector == 7
 					&& !(identifyColumn(candidateCoordinate) == 8 && (this.getPieceColour() == Alliance.WHITE))
@@ -59,7 +59,8 @@ public class Pawn extends Piece {
 					Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 					if (pieceColour != this.playerColour) {
-						legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination));
+						legalMoves
+								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
 					}
 
 				} else if (candidateVector == 9
@@ -70,7 +71,8 @@ public class Pawn extends Piece {
 						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination));
+							legalMoves.add(
+									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
 						}
 
 					}

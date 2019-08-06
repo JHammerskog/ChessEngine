@@ -1,29 +1,31 @@
 package pieces;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import board.Move;
 import board.Alliance;
 import board.Board;
 import board.BoardUtility;
+import board.Move;
+import board.Move.AttackingMove;
+import board.Move.NonAttackingMove;
 import board.Tile;
-import board.Move.*;
 
 public class Rook extends Piece {
 
 	public Rook(int piecePosition, Alliance playerColour) {
-		super(piecePosition, playerColour);
+		super(piecePosition, playerColour, PieceType.ROOK);
 
 	}
 
 	private int[] possibleRookMoves = { -8, -1, 1, 8 };
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and inhereted
-														// by Bishop/Queen/Rook
+	public List<Move> calculateLegalMoves(Board board) { // the bulk of this function could be put in Piece and
+															// inhereted
+															// by Bishop/Queen/Rook
 
-		Set<Move> legalMoves = Collections.EMPTY_SET;
+		List<Move> legalMoves = new ArrayList<>();
 		int candidateCoordinate;
 
 		for (int candidateVector : possibleRookMoves) {
@@ -36,14 +38,14 @@ public class Rook extends Piece {
 					break;
 				}
 
-				candidateCoordinate += candidateVector; 
+				candidateCoordinate += candidateVector;
 
 				if (BoardUtility.validDestinationTile(candidateCoordinate)) {
 					Tile candidateTile = board.getTile(candidateCoordinate);
 
 					if (!candidateTile.tileIsOccupied()) {
 
-						legalMoves.add(new NonAttackingMove(board, this, candidateTile));
+						legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 						// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 					} else {
@@ -52,7 +54,8 @@ public class Rook extends Piece {
 						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination));
+							legalMoves.add(
+									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 						}
 						break;

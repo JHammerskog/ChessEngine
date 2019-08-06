@@ -1,29 +1,30 @@
 package pieces;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
+import board.Move.AttackingMove;
+import board.Move.NonAttackingMove;
+import pieces.Piece.PieceType;
 import board.Tile;
-import board.Move.*;
 
 public class Bishop extends Piece {
 
 	private int[] bishopDiagonals = { -9, -7, 7, 9 };
 
 	public Bishop(int piecePosition, Alliance playerColour) {
-		super(piecePosition, playerColour);
+		super(piecePosition, playerColour, PieceType.BISHOP);
 	}
 
 	@Override
-	public Set<Move> calculateLegalMoves(Board board) {// the bulk of this function could be put in Piece and inhereted
+	public List<Move> calculateLegalMoves(Board board) {// the bulk of this function could be put in Piece and inhereted
 														// by Bishop/Queen/Rook
 
-		Set<Move> legalMoves = Collections.EMPTY_SET; // List will probably be better than set for concatenating all
-														// legal moves for a player
+		List<Move> legalMoves = new ArrayList<>();
 
 		int candidateCoordinate;
 
@@ -45,7 +46,7 @@ public class Bishop extends Piece {
 
 					if (!candidateTile.tileIsOccupied()) {
 
-						legalMoves.add(new NonAttackingMove(board, this, candidateTile));
+						legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 						// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 
 					} else {
@@ -54,7 +55,8 @@ public class Bishop extends Piece {
 						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(new AttackingMove(board, this, candidateTile, pieceAtCandidateDestination)); // AttackingMove
+							legalMoves.add(
+									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination)); // AttackingMove
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
 						}
 						break;
