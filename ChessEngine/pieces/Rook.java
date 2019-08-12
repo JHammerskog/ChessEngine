@@ -51,7 +51,7 @@ public class Rook extends Piece {
 					} else {
 
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
-						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+						Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(
@@ -68,6 +68,11 @@ public class Rook extends Piece {
 		}
 
 		return legalMoves;
+	}
+	
+	@Override
+	public Piece movePiece(Move move) {
+		return new Rook(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
 
 	public String toString() {

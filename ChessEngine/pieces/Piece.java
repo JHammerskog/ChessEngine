@@ -8,8 +8,8 @@ import board.BoardUtility;
 import board.Move;
 
 /***
- * @author 1200046h The Piece class and its children define the logic of moving
- *         for each individual piece
+ * The Piece class and its children define the logic of moving for each
+ * individual piece.
  */
 
 public abstract class Piece {
@@ -23,15 +23,11 @@ public abstract class Piece {
 		this.piecePosition = piecePosition;
 		this.playerColour = playerColour;
 		this.pieceType = pieceType;
-		// Pass PieceType in constructor? If you need to keep track of pieces in the
-		// future implement this
 	}
 
-	public List<Move> calculateLegalMoves(Board board) {
-		return null;
-	}
+	public abstract List<Move> calculateLegalMoves(Board board);
 
-	public Alliance getPieceColour() {
+	public Alliance getPieceAlliance() {
 		return this.playerColour;
 	}
 
@@ -44,11 +40,12 @@ public abstract class Piece {
 	}
 
 	public PieceType getPieceType() {
-		// TODO Auto-generated method stub
 		return this.pieceType;
 	}
 
-	public enum PieceType { // Add king logic here later
+	public abstract Piece movePiece(Move move);
+
+	public enum PieceType {
 
 		BISHOP("B"), KING("K"), KNIGHT("N"), PAWN("P"), QUEEN("Q"), ROOK("R");
 

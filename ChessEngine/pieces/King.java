@@ -9,7 +9,6 @@ import board.BoardUtility;
 import board.Move;
 import board.Move.AttackingMove;
 import board.Move.NonAttackingMove;
-import pieces.Piece.PieceType;
 import board.Tile;
 
 public class King extends Piece {
@@ -37,15 +36,15 @@ public class King extends Piece {
 				Tile candidateTile = board.getTile(candidateCoordinate);
 
 				if (!candidateTile.tileIsOccupied() /* && tile is not attacked */) {
+					
+					
 
-					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate)); // Move logic not yet
-					// finished
-					// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
+					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate)); 
 
 				} else {
 
 					Piece pieceAtCandidateDestination = candidateTile.getPiece();
-					Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+					Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 					if (pieceColour != this.playerColour /* && piece is not defended */) {
 						legalMoves
@@ -57,6 +56,11 @@ public class King extends Piece {
 		}
 
 		return legalMoves;
+	}
+	
+	@Override
+	public Piece movePiece(Move move) {
+		return new King(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
 
 	public String toString() {

@@ -9,7 +9,6 @@ import board.BoardUtility;
 import board.Move;
 import board.Move.AttackingMove;
 import board.Move.NonAttackingMove;
-import pieces.Piece.PieceType;
 import board.Tile;
 
 public class Pawn extends Piece {
@@ -25,7 +24,7 @@ public class Pawn extends Piece {
 		List<Move> legalMoves = new ArrayList<>();
 		int candidateCoordinate;
 
-		if (this.getPieceColour() == Alliance.WHITE) { // Not generic, maybe add isWhite/black method to Player enum
+		if (this.getPieceAlliance() == Alliance.WHITE) { // Not generic, maybe add isWhite/black method to Player enum
 			for (int i = 0; i < pawnVectors.length; i++) {
 				pawnVectors[i] = -pawnVectors[i]; // maybe find a better way for directionality
 			}
@@ -52,11 +51,11 @@ public class Pawn extends Piece {
 					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 				}
 			} else if (candidateVector == 7
-					&& !(identifyColumn(candidateCoordinate) == 8 && (this.getPieceColour() == Alliance.WHITE))
-					|| !(identifyColumn(candidateCoordinate) == 1) && (this.getPieceColour() == Alliance.BLACK)) {
+					&& !(identifyColumn(candidateCoordinate) == 8 && (this.getPieceAlliance() == Alliance.WHITE))
+					|| !(identifyColumn(candidateCoordinate) == 1) && (this.getPieceAlliance() == Alliance.BLACK)) {
 				if (candidateTile.tileIsOccupied()) {
 					Piece pieceAtCandidateDestination = candidateTile.getPiece();
-					Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+					Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 					if (pieceColour != this.playerColour) {
 						legalMoves
@@ -64,11 +63,11 @@ public class Pawn extends Piece {
 					}
 
 				} else if (candidateVector == 9
-						&& !(identifyColumn(candidateCoordinate) == 1 && (this.getPieceColour() == Alliance.WHITE))
-						|| !(identifyColumn(candidateCoordinate) == 8) && (this.getPieceColour() == Alliance.BLACK)) {
+						&& !(identifyColumn(candidateCoordinate) == 1 && (this.getPieceAlliance() == Alliance.WHITE))
+						|| !(identifyColumn(candidateCoordinate) == 8) && (this.getPieceAlliance() == Alliance.BLACK)) {
 					if (candidateTile.tileIsOccupied()) {
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
-						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+						Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(
@@ -81,6 +80,11 @@ public class Pawn extends Piece {
 
 		}
 		return legalMoves;
+	}
+	
+	@Override
+	public Piece movePiece(Move move) {
+		return new Pawn(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
 
 	public String toString() {

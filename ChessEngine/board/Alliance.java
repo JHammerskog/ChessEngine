@@ -1,9 +1,29 @@
 package board;
 
-public enum Alliance { // Name changed from player to alliance because I need to make player classes
-						// that should be called player :)
+/***
+ * Constant player types that will never change
+ ***/
 
-	WHITE, BLACK // Constant player types which will never change
+//consider moving this to different package
+
+public enum Alliance { 
+
+	WHITE {
+
+		@Override
+		public Alliance getOpponent() {
+			return BLACK;
+		}
+
+	},
+	BLACK {
+
+		@Override
+		public Alliance getOpponent() {
+			return WHITE;
+		}
+		
+	};
+	public abstract Alliance getOpponent();
 }
 
-// consider moving this to different package

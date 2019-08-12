@@ -1,9 +1,10 @@
 package board;
 
 /***
- * @author 1200046h This class contains helper methods to do with board logic
+ * This class contains helper methods to do with board logic that does not
+ * naturally fit in anywhere else.
  */
-public class BoardUtility { // This entire class should be moved to a board utility class
+public class BoardUtility {
 
 	protected static final int numberOfTiles = 64; // Set to tiles on a chess board
 
@@ -48,12 +49,6 @@ public class BoardUtility { // This entire class should be moved to a board util
 
 		return result;
 	}
-
-	/*
-	 * Although the above method reduces abstraction elsewhere, it only affects
-	 * classes which are specifically designed to play chess. If time allows find a
-	 * more generic way to evaluate column exceptions.
-	 */
 
 	public static boolean validDestinationTile(int destPosition) {
 		return (destPosition >= 0 && destPosition < numberOfTiles);

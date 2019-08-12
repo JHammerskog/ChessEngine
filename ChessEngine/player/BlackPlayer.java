@@ -14,13 +14,17 @@ public class BlackPlayer extends Player {
 	}
 
 	public List<Piece> getActivePieces() {
-		return null; // getBlackPieces from board
-
+		return this.board.getActiveBlackPieces();
 	}
 
 	@Override
 	public Alliance getAlliance() {
 		return Alliance.BLACK;
 	}
+	
+	public String toString() {
+		return "BLACK";
+	}
 
+	// Black Castling logic here if you have time
 }

@@ -9,7 +9,6 @@ import board.BoardUtility;
 import board.Move;
 import board.Move.AttackingMove;
 import board.Move.NonAttackingMove;
-import pieces.Piece.PieceType;
 import board.Tile;
 
 public class Queen extends Piece {
@@ -57,7 +56,7 @@ public class Queen extends Piece {
 					} else {
 
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
-						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+						Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(
@@ -74,6 +73,11 @@ public class Queen extends Piece {
 		}
 
 		return legalMoves;
+	}
+	
+	@Override
+	public Piece movePiece(Move move) {
+		return new Queen(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
 
 	public String toString() {

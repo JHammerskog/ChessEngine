@@ -1,23 +1,23 @@
 package board;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import pieces.Piece;
 
-import java.util.Collections;
-import java.util.HashMap;
+/***
+ * This class defines the behaviour of a singular tile. It's two children define
+ * needed logic for occupied/unoccupied tiles.
+ */
 
-public abstract class Tile { // SuperClass that defines general tile logic
+public abstract class Tile {
 
-	private final int coordinate; // 0 = A8, 63 = H1
+	// BE AWARE: You removed all the int coordinate from constructors because it was
+	// seemingly redundant.
 
-	private Tile(int coordinate) {
-		this.coordinate = coordinate;
+	private Tile() {
 	}
-
-	public abstract boolean tileIsOccupied();
-
-	public abstract Piece getPiece();
 
 	private static Map<Integer, UnoccupiedTile> emptyTiles = makeAllEmptyTiles();
 
@@ -34,18 +34,26 @@ public abstract class Tile { // SuperClass that defines general tile logic
 
 	public static Tile createTile(final int coordinate, final Piece piece) { // Make more readable
 
+		if (piece != null) {
+			return new OccupiedTile(coordinate, piece);
+		} else {
+			return emptyTiles.get(coordinate);
+		}
+
 		// Tile Factory
-		return piece != null ? new OccupiedTile(coordinate, piece) : emptyTiles.get(coordinate);
-		// if piece is not null (aka there is a piece on the tile) make a new Tile with
-		// that piece on it : Otherwise make an empty tile at coordinate
+
 	}
+
+	public abstract boolean tileIsOccupied();
+
+	public abstract Piece getPiece();
 
 	private static final class OccupiedTile extends Tile { // tiles with piece on them
 
 		private final Piece occupyingPiece;
 
 		OccupiedTile(int coordinate, Piece occupyingPiece) {
-			super(coordinate);
+			super();
 			this.occupyingPiece = occupyingPiece;
 
 		}
@@ -62,7 +70,7 @@ public abstract class Tile { // SuperClass that defines general tile logic
 		}
 
 		public String toString() {
-			if (this.getPiece().getPieceColour() == Alliance.BLACK) {
+			if (this.getPiece().getPieceAlliance() == Alliance.BLACK) {
 				return this.getPiece().toString().toLowerCase();
 			}
 			return this.getPiece().toString();
@@ -72,7 +80,7 @@ public abstract class Tile { // SuperClass that defines general tile logic
 	public static final class UnoccupiedTile extends Tile { // Tiles with no current pieces
 
 		private UnoccupiedTile(int coordinate) {
-			super(coordinate);
+			super();
 
 		}
 

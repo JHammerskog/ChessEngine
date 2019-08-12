@@ -14,13 +14,18 @@ public class WhitePlayer extends Player {
 	}
 
 	public List<Piece> getActivePieces() {
-		return null; // whiteLegalMovesInPosition;
-
+		return this.board.getActiveWhitePieces();
 	}
 
 	@Override
 	public Alliance getAlliance() {
 		return Alliance.WHITE;
 	}
+	
+	public String toString() {
+		return "WHITE";
+	}
+	
+	// White Castling logic here if you have time
 
 }

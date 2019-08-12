@@ -9,7 +9,6 @@ import board.BoardUtility;
 import board.Move;
 import board.Move.AttackingMove;
 import board.Move.NonAttackingMove;
-import pieces.Piece.PieceType;
 import board.Tile;
 
 public class Bishop extends Piece {
@@ -52,7 +51,7 @@ public class Bishop extends Piece {
 					} else {
 
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
-						Alliance pieceColour = pieceAtCandidateDestination.getPieceColour();
+						Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(
@@ -73,6 +72,11 @@ public class Bishop extends Piece {
 
 	public String toString() {
 		return Piece.PieceType.BISHOP.toString();
+	}
+
+	@Override
+	public Piece movePiece(Move move) {
+		return new Bishop(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
 
 }
