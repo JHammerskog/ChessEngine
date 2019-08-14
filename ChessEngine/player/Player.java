@@ -69,7 +69,7 @@ public abstract class Player {
 	public BoardTransition makeHalfMove(Move halfMove) { // Possibly move this method?
 
 		if (!(verifyLegalMove(halfMove))) {
-			System.out.println("Not a legal move!");
+			System.out.println("The method 'makeHalfMove' was just passed an illegal move!");
 			return new BoardTransition(this.board, this.board, halfMove);
 		}
 
@@ -82,24 +82,27 @@ public abstract class Player {
 				newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getPlayerKing().getPiecePosition());
 
 		if (!(movesThatPutKingInCheck.isEmpty())) { // Potentially inefficient way to check for check?
-			System.out.println("Move would put king in check!");
+
+			// System.out.println("Move would put king in check!"); // Uncomment to
+			// highlight inefficiency
+
 			return new BoardTransition(this.board, this.board, halfMove);
 		}
-		// TO-DO game over logic
+
 		if (newBoard.getCurrentPlayer().isCheckMate()) { // Tidy this if/else if up
 
-			System.out.println("Game is over due to checkmate.");
+			// TODO Game over?
 
 		} else if (newBoard.getCurrentPlayer().isStaleMate()) {
 			System.out.println("Game is over due to stalemate.");
-
+			// TODO do this later
 		}
-
+		// System.out.println(newBoard); // uncomment to show every board
 		return new BoardTransition(this.board, newBoard, halfMove);
 	}
 
 	public boolean isCheckMate() { // Currently does not work
-		if (!isNotInCheck && legalMovesInPosition.isEmpty()) {
+		if (!isNotInCheck && !(checkCanBeAvoided(this.legalMovesInPosition))) {
 			return true;
 		}
 		return false;
@@ -110,6 +113,24 @@ public abstract class Player {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean checkCanBeAvoided(List<Move> threatenedPlayersLegalMoves) {
+
+		List<Move> escapeMoves = new ArrayList<>();
+
+		for (Move move : threatenedPlayersLegalMoves) {
+			final Board potentialCheckMateBoard = move.executeMoveAndBuildBoard();
+			if (potentialCheckMateBoard.getOpponent(potentialCheckMateBoard.getCurrentPlayer().getAlliance())
+					.getCheckStatus() == true) { // INverted logic here, we have to look at the player
+				escapeMoves.add(move);
+			}
+		}
+		if (escapeMoves.isEmpty()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	// Getters and Setters & Abstract Methods

@@ -1,42 +1,117 @@
 package ai;
 
-public class MiniMax { // redundant code, refactor later
+import board.Board;
+import board.Move;
 
-	State state; // will be replaced with "Board" class when developed
+public class MiniMax {
 
-	public MiniMax() {
-		
+	/***
+	 * This is ai is based on a simple minimax recursive algorithm. It currently
+	 * goes through all pseudolegal moves, if the move is possible it scores the
+	 * board, and returns the move with the highest score.
+	 * 
+	 * Currently, this AI is not working very well. 
+	 ***/
 
+	StateEvaluator positionScore;
+	int depth;
+
+	public MiniMax(int depth) {
+		this.depth = depth;
+		this.positionScore = new StateEvaluator();
 	}
 
-	public int minimax(int depth, int values[], boolean maximizingPlayer, int node) {
-		int selectedMove;
+	public Move minimax(int depth, boolean maximizingPlayer, Board board) {
 
-		if (maximizingPlayer) {
-			selectedMove = maximize(this.state, depth);
+		long startTime = System.currentTimeMillis();
+		System.out.println("Starting to evaluate position with depth: " + depth);
 
-		} else {
-			selectedMove = minimize(this.state, depth);
+		Move selectedMove = null;
 
+		int bestValueForWhite = Integer.MIN_VALUE;
+		int bestValueForBlack = Integer.MAX_VALUE;
+		int tempValue;
+
+		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) { // FOr every move, see the best
+																				// guaranteed score for the player
+
+			Board newBoard = move.executeMoveAndBuildBoard();
+
+			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+
+				if (maximizingPlayer) {
+
+					tempValue = maximize(board, depth);
+
+				} else {
+					tempValue = minimize(board, depth);
+				}
+
+				// After highest score has been found, check which player it was and if the move
+				// is better than previous moves, set it to selected move
+
+				if (maximizingPlayer && tempValue >= bestValueForWhite) {
+					bestValueForWhite = tempValue;
+					selectedMove = move;
+
+				} else if (!(maximizingPlayer) && tempValue <= bestValueForBlack) {
+
+					bestValueForBlack = tempValue;
+					selectedMove = move;
+				}
+			}
 		}
+
+		long endTime = System.currentTimeMillis() - startTime;
+
+		System.out.println("This took me: " + endTime + " milliseconds to compute!");
+
 		return selectedMove;
 	}
 
-	private int maximize(final State state, int depth) {
-		int bestMove = Integer.MIN_VALUE; // Best move initially is set to the lowest possible number
-		
-		// for(LEGAL_MOVES): Make all moves and evaluate new board
-		// if one move is yields a higher value than current bestMove, set currentMove
-		// to BestMove
+	private int maximize(final Board board, int depth) {
+		int bestFoundValue = Integer.MIN_VALUE;
 
-		// Implement opposite of above in minimize()
+		if (depth == 0 || board.getCurrentPlayer().isCheckMate()) {
+			return this.positionScore.scorePosition(board, depth);
+		}
 
-		return bestMove;
+		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
+
+			Board newBoard = move.executeMoveAndBuildBoard();
+
+			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+				int tempValue = minimize(newBoard, depth - 1);
+
+				if (tempValue >= bestFoundValue) {
+					bestFoundValue = tempValue;
+				}
+			}
+
+		}
+
+		return bestFoundValue;
 	}
 
-	private int minimize(final State state, int depth) {
+	private int minimize(final Board board, int depth) {
 		int bestFoundValue = Integer.MAX_VALUE; 
-		// Best move initially is set to the highest possible number
+
+		if (depth == 0 || board.getCurrentPlayer().isCheckMate()) {
+			return this.positionScore.scorePosition(board, depth);
+		}
+
+		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
+			Board newBoard = move.executeMoveAndBuildBoard();
+
+			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+
+				int tempValue = maximize(newBoard, depth - 1);
+				if (tempValue <= bestFoundValue) {
+					bestFoundValue = tempValue;
+				}
+			}
+
+		}
 
 		return bestFoundValue;
 	}

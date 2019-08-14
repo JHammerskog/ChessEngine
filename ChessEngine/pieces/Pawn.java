@@ -39,7 +39,7 @@ public class Pawn extends Piece {
 
 			Tile candidateTile = board.getTile(candidateCoordinate);
 
-			if (candidateVector == 8 && !candidateTile.tileIsOccupied()) {
+			if ((candidateVector == 8 || candidateVector == -8) && !candidateTile.tileIsOccupied()) {
 
 				legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 			} else if ((candidateVector == 16 || candidateVector == -16)
@@ -50,7 +50,7 @@ public class Pawn extends Piece {
 
 					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 				}
-			} else if (candidateVector == 7
+			} else if ((candidateVector == 7 || candidateVector == -7)
 					&& !(identifyColumn(candidateCoordinate) == 8 && (this.getPieceAlliance() == Alliance.WHITE))
 					|| !(identifyColumn(candidateCoordinate) == 1) && (this.getPieceAlliance() == Alliance.BLACK)) {
 				if (candidateTile.tileIsOccupied()) {

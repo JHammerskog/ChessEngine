@@ -29,7 +29,7 @@ public class Board {
 	private List<Piece> activeWhitePieces; // Variables concerned with tracking pieces/playerstatus
 	private List<Piece> activeBlackPieces;
 
-	private WhitePlayer whitePlayer; // Use these to determine currentPlayer (currently in ther Player class)
+	private WhitePlayer whitePlayer; // Use these to determine currentPlayer (currently in there Player class)
 	private BlackPlayer blackPlayer;
 	private Player currentPlayer;
 
@@ -109,6 +109,14 @@ public class Board {
 		}
 
 		throw new RuntimeException("Illegal Alliance modifier");
+	}
+
+	public WhitePlayer getWhitePlayer() {
+		return whitePlayer;
+	}
+
+	public BlackPlayer getBlackPlayer() {
+		return blackPlayer;
 	}
 
 	public Player getCurrentPlayer() {
@@ -214,12 +222,27 @@ public class Board {
 		// in two moves.
 
 		final Builder b = new Builder();
-		b.setNextPlayerToMove(Alliance.BLACK); // White to move
+		b.setNextPlayerToMove(Alliance.WHITE); // White to move
 
 		b.setPiece(new King(4, Alliance.BLACK));
 
 		b.setPiece(new King(19, Alliance.WHITE));
-		b.setPiece(new Rook(29, Alliance.WHITE)); // rook can be anywhere except 5th column
+		b.setPiece(new Rook(24, Alliance.WHITE)); // rook can be anywhere except 5th column
+		return b.build();
+
+	}
+
+	public static Board checkmatePosition() {
+		// This is an easy King-Rook-King (KRK)puzzle where white can check mate black
+		// in two moves.
+
+		final Builder b = new Builder();
+		b.setNextPlayerToMove(Alliance.BLACK); // Whiteh as just put black in checkmate
+
+		b.setPiece(new King(3, Alliance.BLACK));
+
+		b.setPiece(new King(19, Alliance.WHITE));
+		b.setPiece(new Rook(5, Alliance.WHITE)); // rook can be anywhere except 5th column
 		return b.build();
 
 	}

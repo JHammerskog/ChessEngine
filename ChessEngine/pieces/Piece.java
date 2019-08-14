@@ -9,7 +9,7 @@ import board.Move;
 
 /***
  * The Piece class and its children define the logic of moving for each
- * individual piece.
+ * individual piece. Also includes
  */
 
 public abstract class Piece {
@@ -47,17 +47,24 @@ public abstract class Piece {
 
 	public enum PieceType {
 
-		BISHOP("B"), KING("K"), KNIGHT("N"), PAWN("P"), QUEEN("Q"), ROOK("R");
+		BISHOP("B", 300), KING("K", 50000), KNIGHT("N", 300), PAWN("P", 100), QUEEN("Q", 900), ROOK("R", 500);
+		// Find some official weighting for pieceValue rather than using own knowledge
 
 		private String pieceName;
+		private int pieceValue; // This value will be used by minimax
 
-		PieceType(String pieceName) {
+		PieceType(String pieceName, int value) {
 
 			this.pieceName = pieceName;
+			this.pieceValue = value;
 		}
 
 		public String toString() {
 			return this.pieceName;
+		}
+
+		public int getPieceValue() {
+			return this.pieceValue;
 		}
 
 	}

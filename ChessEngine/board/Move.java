@@ -90,13 +90,25 @@ public abstract class Move {
 			return b.build();
 		}
 	}
-	
+
+	public static final class MoveMaker {
+
+		public static Move getMove(Board board, int originTileCoordinate, int destinationTileCoordinate) {
+			for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
+				if (move.getDestinationTileCoordinate() == destinationTileCoordinate
+						&& move.getMovedPiece().getPiecePosition() == originTileCoordinate) {
+					return move;
+				}
+			}
+			throw new RuntimeException(
+					"The MoveMaker class (in Move.java) was asked to make a move it could not perform.");
+		}
+	}
+
 	// Add Pawn move/attackmove
-	
+
 	// Add CastlingMove
-	
+
 	// Add en passent
-	
-	
 
 }
