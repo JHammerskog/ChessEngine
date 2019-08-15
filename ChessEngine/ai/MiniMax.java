@@ -2,15 +2,19 @@ package ai;
 
 import board.Board;
 import board.Move;
+import player.Player;
 
 public class MiniMax {
 
 	/***
-	 * This is ai is based on a simple minimax recursive algorithm. It currently
-	 * goes through all pseudolegal moves, if the move is possible it scores the
-	 * board, and returns the move with the highest score.
+	 * This is ai is based on a simple minimax recursive algorithm. It scores
+	 * potential boards, and returns the move that leads to the board with the best
+	 * possible outcome for the player. Able to solve the KRKMateInTwo() Board.
 	 * 
-	 * Currently, this AI is not working very well. 
+	 * Still buggy, most likely due to an incorrect flag in either minimize() or
+	 * maximize()
+	 * 
+	 * Will come back to this at a later time.
 	 ***/
 
 	StateEvaluator positionScore;
@@ -32,32 +36,36 @@ public class MiniMax {
 		int bestValueForBlack = Integer.MAX_VALUE;
 		int tempValue;
 
-		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) { // FOr every move, see the best
-																				// guaranteed score for the player
+		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
 
 			Board newBoard = move.executeMoveAndBuildBoard();
 
-			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
 
 				if (maximizingPlayer) {
 
-					tempValue = maximize(board, depth);
+					tempValue = minimize(newBoard, depth);
 
-				} else {
-					tempValue = minimize(board, depth);
-				}
+					if (tempValue >= bestValueForWhite) {
+						bestValueForWhite = tempValue;
+						selectedMove = move;
+						System.out.println("Best found move destination for white " + move.getMovedPiece() + ": "
+								+ move.getDestinationTileCoordinate() + " worth: " + bestValueForWhite);
 
-				// After highest score has been found, check which player it was and if the move
-				// is better than previous moves, set it to selected move
+					}
 
-				if (maximizingPlayer && tempValue >= bestValueForWhite) {
-					bestValueForWhite = tempValue;
-					selectedMove = move;
+				} else if (!maximizingPlayer) {
 
-				} else if (!(maximizingPlayer) && tempValue <= bestValueForBlack) {
+					tempValue = maximize(newBoard, depth);
 
-					bestValueForBlack = tempValue;
-					selectedMove = move;
+					if (tempValue <= bestValueForBlack) {
+
+						bestValueForBlack = tempValue;
+						selectedMove = move;
+						System.out.println("Best found move destination for black " + move.getMovedPiece() + ": "
+								+ move.getDestinationTileCoordinate() + " worth: " + bestValueForBlack);
+
+					}
 				}
 			}
 		}
@@ -79,13 +87,18 @@ public class MiniMax {
 		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
 
 			Board newBoard = move.executeMoveAndBuildBoard();
-
-			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+			Player currentPlayer = newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance());
+			if (currentPlayer.getIsNotInCheck() == true) {
 				int tempValue = minimize(newBoard, depth - 1);
+
+				if (tempValue > 20000000) {// Added this due to currently unknown bug
+					throw new RuntimeException("Score impossibly high.");
+				}
 
 				if (tempValue >= bestFoundValue) {
 					bestFoundValue = tempValue;
 				}
+
 			}
 
 		}
@@ -94,7 +107,7 @@ public class MiniMax {
 	}
 
 	private int minimize(final Board board, int depth) {
-		int bestFoundValue = Integer.MAX_VALUE; 
+		int bestFoundValue = Integer.MAX_VALUE;
 
 		if (depth == 0 || board.getCurrentPlayer().isCheckMate()) {
 			return this.positionScore.scorePosition(board, depth);
@@ -102,13 +115,19 @@ public class MiniMax {
 
 		for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
 			Board newBoard = move.executeMoveAndBuildBoard();
+			Player currentPlayer = newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance());
 
-			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getCheckStatus() == true) {
+			if (currentPlayer.getIsNotInCheck() == true) {
 
 				int tempValue = maximize(newBoard, depth - 1);
+
+				if (tempValue > 20000000) { // Added this due to currently unknown bug
+					throw new RuntimeException("Score impossibly high.");
+				}
 				if (tempValue <= bestFoundValue) {
 					bestFoundValue = tempValue;
 				}
+
 			}
 
 		}

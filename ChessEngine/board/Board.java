@@ -247,4 +247,16 @@ public class Board {
 
 	}
 
+	public static Board KRKMateInFive() {
+		final Builder b = new Builder();
+		b.setNextPlayerToMove(Alliance.WHITE);
+
+		b.setPiece(new King(16, Alliance.BLACK));
+
+		b.setPiece(new King(33, Alliance.WHITE));
+		b.setPiece(new Rook(26, Alliance.WHITE)); // rook can be anywhere except 5th column
+		
+		return b.build();
+	}
+
 }

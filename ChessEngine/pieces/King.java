@@ -32,6 +32,14 @@ public class King extends Piece {
 			candidateCoordinate = this.piecePosition + candidateMove;
 
 			if (BoardUtility.validDestinationTile(candidateCoordinate)) {
+				
+				if ((identifyColumn(this.piecePosition) == 0
+						&& (candidateMove == -1 || candidateMove == -9 || candidateMove == 7))
+						|| ((identifyColumn(this.piecePosition) == 7
+								&& (candidateMove == 1 || candidateMove == -7 || candidateMove == 9)))) {
+
+					continue;
+				}
 
 				Tile candidateTile = board.getTile(candidateCoordinate);
 

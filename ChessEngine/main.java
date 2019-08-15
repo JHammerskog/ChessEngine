@@ -10,33 +10,36 @@ public class main {
 
 		// Board b = Board.createStartingPosition();
 		Board b = Board.KRKMateInTwo();
+		// Board b = Board.KRKMateInFive();
 
 		System.out.println("Original board:\n" + b);
 
-		MiniMax m = new MiniMax(0);
+		MiniMax m = new MiniMax(5);
 
-		Move bestMove1 = m.minimax(2, true, b); // 446 ms
+		Move bestMove1 = m.minimax(5, true, b);
 
 		Board b1 = bestMove1.executeMoveAndBuildBoard();
 
 		System.out.println("1. BEST MOVE: \n\n" + b1);
 
-		Move bestMove2 = m.minimax(2, false, b1); // 18ms
+		Move bestMove2 = m.minimax(5, false, b1);
 
 		Board b2 = bestMove2.executeMoveAndBuildBoard();
 
 		System.out.println("2. BEST MOVE: \n\n" + b2);
 
-		Move bestMove3 = m.minimax(2, true, b2); // 23000ms
+		Move bestMove3 = m.minimax(5, true, b2);
 
 		Board b3 = bestMove3.executeMoveAndBuildBoard();
 
 		System.out.println("3. BEST MOVE: \n\n" + b3);
 
-		System.out.println("");
+		if (b3.getCurrentPlayer().isCheckMate()) {
+			System.out.println(b3.getCurrentPlayer().getAlliance().toString() + " has been checkmated!");
+		}
 
-		Scanner s = new Scanner(System.in);
-
+//		Scanner s = new Scanner(System.in);
+//
 //		while (true) { // This while loop is a very testing area
 //
 //			System.out.println(b);

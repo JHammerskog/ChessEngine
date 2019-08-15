@@ -33,9 +33,9 @@ public class Queen extends Piece {
 
 			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
 
-				if ((identifyColumn(candidateCoordinate) == 0
+				if ((identifyColumn(this.piecePosition) == 0
 						&& (candidateVector == -1 || candidateVector == -9 || candidateVector == 7))
-						|| ((identifyColumn(candidateCoordinate) == 7
+						|| ((identifyColumn(this.piecePosition) == 7
 								&& (candidateVector == 1 || candidateVector == -7 || candidateVector == 9)))) {
 
 					break;

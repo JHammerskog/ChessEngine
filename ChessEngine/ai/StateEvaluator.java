@@ -24,8 +24,8 @@ public class StateEvaluator {
 			playerScore += piece.getPieceType().getPieceValue();
 		}
 
-		if ((board.getCurrentPlayer().isCheckMate()) && board.getCurrentPlayer() != player) { // Not working,
-			playerScore += (checkmateScore - (depth * 10)); // IN my mind, this depth modifier should mean that the checkmate with the lowest depth will have a higher score?
+		if ((board.getCurrentPlayer().isCheckMate()) && board.getCurrentPlayer() != player) {
+			playerScore += (checkmateScore + (depth * 100)); // Depth modifier means sooner checkmate = higher score
 		}
 
 		return playerScore;
