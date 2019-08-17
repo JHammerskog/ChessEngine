@@ -38,33 +38,25 @@ public class BoardTest {
 
 	}
 
-	@Test
-	public void testCheckmate() {
-
-		Board b = Board.checkmatePosition();
-		// Passes
-		assertTrue(b.getCurrentPlayer().isCheckMate());
-
-	}
 
 	@Test
-	public void testMiniMax() {
+	public void testMiniMax() { // Testing a simple mate-in-two puzzle
 		Board b = Board.KRKMateInTwo();
-		MiniMax m = new MiniMax(3);
+		MiniMax m = new MiniMax(2);
 
-		Move bestMove = m.minimax(3, true, b); // should be Rook to tile 29
+		Move bestMove = m.minimax(2, true, b); // should be Rook to tile 29
 		Board b1 = bestMove.executeMoveAndBuildBoard();
 
-		Move bestMove1 = m.minimax(3, false, b1); // Only legal move is King to tile 3
+		Move bestMove1 = m.minimax(2, false, b1); // Only legal move is King to tile 3
 		Board b2 = bestMove1.executeMoveAndBuildBoard();
 
-		Move bestMove2 = m.minimax(3, true, b2); // Should be rook to tile 5, checkmate
-		Board b3 = bestMove1.executeMoveAndBuildBoard();
+		Move bestMove2 = m.minimax(2, true, b2); // Should be rook to tile 5, checkmate
+		Board b3 = bestMove2.executeMoveAndBuildBoard();
 
-		assertEquals("bestMove1 destinationtile should be 29", 29, bestMove.getDestinationTileCoordinate());
+		assertEquals("bestMove destinationtile should be 29", 29, bestMove.getDestinationTileCoordinate());
 		assertEquals("bestMove1 destinationtile should be 3", 3, bestMove1.getDestinationTileCoordinate());
 		assertEquals("bestMove2 destinationtile should be 5", 5, bestMove2.getDestinationTileCoordinate());
-		assertTrue(b3.getCurrentPlayer().isCheckMate());
+		assertTrue(b3.getCurrentPlayer().isCheckMate()); // Checks checkmate, move to different TestCase?
 
 	}
 

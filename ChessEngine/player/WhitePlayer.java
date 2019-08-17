@@ -21,11 +21,16 @@ public class WhitePlayer extends Player {
 	public Alliance getAlliance() {
 		return Alliance.WHITE;
 	}
-	
+
+	@Override
+	public Alliance getOpponentAlliance() {
+		return Alliance.BLACK;
+	}
+
 	public String toString() {
 		return "WHITE";
 	}
-	
+
 	// White Castling logic here if you have time
 
 }

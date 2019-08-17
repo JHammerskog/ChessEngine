@@ -42,12 +42,19 @@ public class BoardUtility {
 		return result;
 	}
 
-	public static int calculateColumn(int currentPiecePosition) { // maybe move to Board class?
-		int result;
+	public static int calculateColumn(int tileCoordinate) { // maybe move to Board class?
 
-		result = currentPiecePosition % tilesPerColumn;
+		final int columnNumber = tileCoordinate % tilesPerColumn;
 
-		return result;
+		return columnNumber;
+	}
+
+	public static int calculateRow(int tileCoordinate) { //
+
+		final int rowNumber = tileCoordinate / tilesPerColumn;
+
+		return rowNumber;
+
 	}
 
 	public static boolean validDestinationTile(int destPosition) {

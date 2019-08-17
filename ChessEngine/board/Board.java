@@ -51,7 +51,7 @@ public class Board {
 
 	}
 
-	private List<Tile> populateBoard(Builder builder) { // Make less static?
+	private List<Tile> populateBoard(Builder builder) {
 
 		final List<Tile> tileList = new ArrayList<>();
 		for (int i = 0; i < BoardUtility.getNumberOfTiles(); i++) {
@@ -232,21 +232,6 @@ public class Board {
 
 	}
 
-	public static Board checkmatePosition() {
-		// This is an easy King-Rook-King (KRK)puzzle where white can check mate black
-		// in two moves.
-
-		final Builder b = new Builder();
-		b.setNextPlayerToMove(Alliance.BLACK); // Whiteh as just put black in checkmate
-
-		b.setPiece(new King(3, Alliance.BLACK));
-
-		b.setPiece(new King(19, Alliance.WHITE));
-		b.setPiece(new Rook(5, Alliance.WHITE)); // rook can be anywhere except 5th column
-		return b.build();
-
-	}
-
 	public static Board KRKMateInFive() {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
@@ -255,7 +240,7 @@ public class Board {
 
 		b.setPiece(new King(33, Alliance.WHITE));
 		b.setPiece(new Rook(26, Alliance.WHITE)); // rook can be anywhere except 5th column
-		
+
 		return b.build();
 	}
 
