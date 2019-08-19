@@ -32,7 +32,7 @@ public class King extends Piece {
 			candidateCoordinate = this.piecePosition + candidateMove;
 
 			if (BoardUtility.validDestinationTile(candidateCoordinate)) {
-				
+
 				if ((identifyColumn(this.piecePosition) == 0
 						&& (candidateMove == -1 || candidateMove == -9 || candidateMove == 7))
 						|| ((identifyColumn(this.piecePosition) == 7
@@ -44,10 +44,8 @@ public class King extends Piece {
 				Tile candidateTile = board.getTile(candidateCoordinate);
 
 				if (!candidateTile.tileIsOccupied() /* && tile is not attacked */) {
-					
-					
 
-					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate)); 
+					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 
 				} else {
 
@@ -57,6 +55,8 @@ public class King extends Piece {
 					if (pieceColour != this.playerColour /* && piece is not defended */) {
 						legalMoves
 								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination)); // AttackingMove
+					} else {
+						defendedPieces.add(pieceAtCandidateDestination);
 					}
 				}
 			}
@@ -65,10 +65,10 @@ public class King extends Piece {
 
 		return legalMoves;
 	}
-	
+
 	@Override
 	public Piece movePiece(Move move) {
-		return new King(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
+		return new King(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance());
 	}
 
 	public String toString() {

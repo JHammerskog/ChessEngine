@@ -56,6 +56,22 @@ public class BoardUtility {
 		return rowNumber;
 
 	}
+	
+	public static boolean isPieceOnEdge(int tileCoordinate) { // Refactor to seperate row/column?
+		if (calculateColumn(tileCoordinate) == 0 // A column
+				|| calculateColumn(tileCoordinate) == 7 // H Column
+				|| calculateRow(tileCoordinate) == 0 // 8th rank (from white's
+																						// perspective)
+				|| calculateRow(tileCoordinate) == 7) { // 1st rank (from white's
+			// perspective)
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean determinePinAgainstColumn() {
+		return false;
+	}
 
 	public static boolean validDestinationTile(int destPosition) {
 		return (destPosition >= 0 && destPosition < numberOfTiles);

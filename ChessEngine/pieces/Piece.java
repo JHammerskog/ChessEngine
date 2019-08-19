@@ -1,5 +1,6 @@
 package pieces;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import board.Alliance;
@@ -18,6 +19,7 @@ public abstract class Piece {
 	protected final Alliance playerColour;
 	protected boolean isFirstMove; // Initially set to true, for pawns and castling
 	protected PieceType pieceType;
+	protected List<Piece> defendedPieces = new ArrayList<Piece>();
 
 	protected Piece(final int piecePosition, final Alliance playerColour, final PieceType pieceType) {
 		this.piecePosition = piecePosition;
@@ -41,6 +43,10 @@ public abstract class Piece {
 
 	public PieceType getPieceType() {
 		return this.pieceType;
+	}
+	
+	public List<Piece> getDefendedPieces() {
+		return defendedPieces;
 	}
 
 	public abstract Piece movePiece(Move move);

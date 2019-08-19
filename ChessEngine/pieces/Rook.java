@@ -57,6 +57,8 @@ public class Rook extends Piece {
 							legalMoves.add(
 									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
+						} else {
+							defendedPieces.add(pieceAtCandidateDestination);
 						}
 						break;
 					}
@@ -69,10 +71,10 @@ public class Rook extends Piece {
 
 		return legalMoves;
 	}
-	
+
 	@Override
 	public Piece movePiece(Move move) {
-		return new Rook(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
+		return new Rook(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance());
 	}
 
 	public String toString() {

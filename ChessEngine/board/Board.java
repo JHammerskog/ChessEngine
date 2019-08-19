@@ -43,9 +43,13 @@ public class Board {
 		// keep track of the possible legal moves for each player.
 		List<Move> whiteLegalMovesInPosition = calculateLegalMovesForPosition(this.activeWhitePieces);
 		List<Move> blackLegalMovesInPosition = calculateLegalMovesForPosition(this.activeBlackPieces);
+		List<Piece> defendedWhitePieces = calculateDefendedPieces(this.activeWhitePieces);
+		List<Piece> defendedBlackPieces = calculateDefendedPieces(this.activeBlackPieces);
 
-		this.whitePlayer = new WhitePlayer(this, whiteLegalMovesInPosition, blackLegalMovesInPosition);
-		this.blackPlayer = new BlackPlayer(this, blackLegalMovesInPosition, whiteLegalMovesInPosition);
+		this.whitePlayer = new WhitePlayer(this, whiteLegalMovesInPosition, blackLegalMovesInPosition,
+				defendedWhitePieces);
+		this.blackPlayer = new BlackPlayer(this, blackLegalMovesInPosition, whiteLegalMovesInPosition,
+				defendedBlackPieces);
 
 		this.currentPlayer = setCurrentPlayer(builder.nextPlayerToMove);
 
@@ -74,6 +78,19 @@ public class Board {
 		}
 
 		return Collections.unmodifiableList(activePiecesForPlayer);
+	}
+
+	private List<Piece> calculateDefendedPieces(List<Piece> activePieces) {
+		final List<Piece> defendedPieces = new ArrayList<>();
+
+		for (Piece piece : activePieces) {
+			for (Piece originalPiece : piece.getDefendedPieces()) {
+				if (!defendedPieces.contains(originalPiece)) {
+					defendedPieces.add(originalPiece);
+				}
+			}
+		}
+		return Collections.unmodifiableList(defendedPieces);
 	}
 
 	private List<Move> calculateLegalMovesForPosition(List<Piece> activePieces) {
@@ -227,7 +244,7 @@ public class Board {
 		b.setPiece(new King(4, Alliance.BLACK));
 
 		b.setPiece(new King(19, Alliance.WHITE));
-		b.setPiece(new Rook(24, Alliance.WHITE)); // rook can be anywhere except 5th column
+		b.setPiece(new Rook(24, Alliance.WHITE)); // rook can be anywhere > 20 && not 5th column
 		return b.build();
 
 	}
@@ -239,7 +256,19 @@ public class Board {
 		b.setPiece(new King(16, Alliance.BLACK));
 
 		b.setPiece(new King(33, Alliance.WHITE));
-		b.setPiece(new Rook(26, Alliance.WHITE)); // rook can be anywhere except 5th column
+		b.setPiece(new Rook(26, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board TestBoard() {
+		final Builder b = new Builder();
+		b.setNextPlayerToMove(Alliance.WHITE);
+
+		b.setPiece(new King(8, Alliance.BLACK));
+
+		b.setPiece(new King(2, Alliance.WHITE));
+		b.setPiece(new Rook(1, Alliance.WHITE));
 
 		return b.build();
 	}

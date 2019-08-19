@@ -62,6 +62,8 @@ public class Queen extends Piece {
 							legalMoves.add(
 									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
 
+						} else {
+							defendedPieces.add(pieceAtCandidateDestination);
 						}
 						break;
 					}
@@ -74,10 +76,10 @@ public class Queen extends Piece {
 
 		return legalMoves;
 	}
-	
+
 	@Override
 	public Piece movePiece(Move move) {
-		return new Queen(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
+		return new Queen(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance());
 	}
 
 	public String toString() {

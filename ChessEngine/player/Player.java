@@ -21,12 +21,14 @@ public abstract class Player {
 
 	private Piece playerKing;
 	private List<Move> legalMovesInPosition;
+	private List<Piece> defendedPieces;
 
 	protected Board board;
 
-	public Player(Board board, List<Move> legalMovesInPosition, List<Move> opponentMovesInPosition) {
+	public Player(Board board, List<Move> legalMovesInPosition, List<Move> opponentMovesInPosition, List<Piece> defendedPieces) {
 		this.board = board;
 		this.legalMovesInPosition = legalMovesInPosition;
+		this.defendedPieces = defendedPieces;
 
 		this.playerKing = findKing();
 		this.isNotInCheck = attacksOnTile(opponentMovesInPosition, playerKing.getPiecePosition()).isEmpty();
@@ -60,6 +62,24 @@ public abstract class Player {
 			}
 		}
 		return Collections.unmodifiableList(movesAttackingTile);
+	}
+	
+	public boolean tileIsDefended(List<Move> legalMoves, int tileCoordinate) {
+		
+		
+		final List<Move> movesDefendingTile = new ArrayList<>();
+
+		for (Move possibleDefensiveMove : legalMoves) {
+			if (possibleDefensiveMove.getDestinationTileCoordinate() == tileCoordinate) {
+				movesDefendingTile.add(possibleDefensiveMove);
+			}
+		}
+		
+		if(movesDefendingTile.isEmpty()) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public boolean verifyLegalMove(Move move) {
@@ -145,6 +165,10 @@ public abstract class Player {
 
 	public List<Move> getLegalMovesInPosition() {
 		return legalMovesInPosition;
+	}
+	
+	public List<Piece> getDefendedPieces() {
+		return defendedPieces;
 	}
 
 	public abstract List<Piece> getActivePieces();

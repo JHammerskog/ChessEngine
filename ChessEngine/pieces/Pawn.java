@@ -60,6 +60,8 @@ public class Pawn extends Piece {
 					if (pieceColour != this.playerColour) {
 						legalMoves
 								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
+					} else {
+						defendedPieces.add(pieceAtCandidateDestination);
 					}
 
 				} else if (candidateVector == 9
@@ -72,6 +74,8 @@ public class Pawn extends Piece {
 						if (pieceColour != this.playerColour) {
 							legalMoves.add(
 									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
+						} else {
+							defendedPieces.add(pieceAtCandidateDestination);
 						}
 
 					}
@@ -81,10 +85,10 @@ public class Pawn extends Piece {
 		}
 		return legalMoves;
 	}
-	
+
 	@Override
 	public Piece movePiece(Move move) {
-		return new Pawn(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
+		return new Pawn(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance());
 	}
 
 	public String toString() {

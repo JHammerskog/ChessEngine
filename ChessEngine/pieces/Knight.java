@@ -73,6 +73,8 @@ public class Knight extends Piece {
 					if (pieceColour != this.playerColour) {
 						legalMoves
 								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination)); // AttackingMove
+					}else {
+						defendedPieces.add(pieceAtCandidateDestination);
 					}
 				}
 			}

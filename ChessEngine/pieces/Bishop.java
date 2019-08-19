@@ -57,6 +57,8 @@ public class Bishop extends Piece {
 							legalMoves.add(
 									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination)); // AttackingMove
 							// System.out.println("NEW LEGAL MOVE FOR TESTING: " + candidateCoordinate);
+						} else {
+							defendedPieces.add(pieceAtCandidateDestination);
 						}
 						break;
 					}

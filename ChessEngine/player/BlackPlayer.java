@@ -9,8 +9,8 @@ import pieces.Piece;
 
 public class BlackPlayer extends Player {
 
-	public BlackPlayer(Board board, List<Move> blackLegalMovesInPosition, List<Move> whiteLegalMovesInPosition) {
-		super(board, blackLegalMovesInPosition, whiteLegalMovesInPosition);
+	public BlackPlayer(Board board, List<Move> blackLegalMovesInPosition, List<Move> whiteLegalMovesInPosition, List<Piece> defendedPieces) {
+		super(board, blackLegalMovesInPosition, whiteLegalMovesInPosition, defendedPieces);
 	}
 
 	public List<Piece> getActivePieces() {
