@@ -98,5 +98,9 @@ public class BoardUtility {
 	public static int getNumberOfTiles() {
 		return numberOfTiles;
 	}
+	
+	public static int getNumberOfTilesPerColumn() {
+		return tilesPerColumn;
+	}
 
 }
