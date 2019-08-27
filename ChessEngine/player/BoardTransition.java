@@ -6,9 +6,13 @@ import board.Move;
 public class BoardTransition {
 
 	/***
-	 * This class stores variables relating to the transitioning of a board.
-	 * Currently, only newBoard will be used (for output of a Board) but the other
-	 * variables will be useful for future GUI and feature development.
+	 * This class stores variables relating to the transitioning of a board. This is
+	 * especially useful for features relating to transitioning back to previous
+	 * boards (like an undo-move feature).
+	 * 
+	 * Currently, it is most likely not within the scope of this project to
+	 * implement such features, and this class will most likely be redundant at
+	 * project handin.
 	 */
 
 	private Board newBoard;

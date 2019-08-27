@@ -100,8 +100,7 @@ public abstract class Move {
 					return move;
 				}
 			}
-			throw new RuntimeException(
-					"The MoveMaker class (in Move.java) was asked to make a move it could not perform.");
+			return null;
 		}
 	}
 

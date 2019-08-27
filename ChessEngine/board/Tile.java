@@ -13,10 +13,10 @@ import pieces.Piece;
 
 public abstract class Tile {
 
-	// BE AWARE: You removed all the int coordinate from constructors because it was
-	// seemingly redundant.
+	private int tileCoordinate;
 
-	private Tile() {
+	private Tile(final int tileCoordinate) {
+		this.tileCoordinate = tileCoordinate;
 	}
 
 	private static Map<Integer, UnoccupiedTile> emptyTiles = makeAllEmptyTiles();
@@ -53,7 +53,7 @@ public abstract class Tile {
 		private final Piece occupyingPiece;
 
 		OccupiedTile(int coordinate, Piece occupyingPiece) {
-			super();
+			super(coordinate);
 			this.occupyingPiece = occupyingPiece;
 
 		}
@@ -80,7 +80,7 @@ public abstract class Tile {
 	public static final class UnoccupiedTile extends Tile { // Tiles with no current pieces
 
 		private UnoccupiedTile(int coordinate) {
-			super();
+			super(coordinate);
 
 		}
 
@@ -98,6 +98,10 @@ public abstract class Tile {
 		public String toString() {
 			return "-";
 		}
+	}
+	
+	public int getTileCoordinate() {
+		return tileCoordinate;
 	}
 
 }
