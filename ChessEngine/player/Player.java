@@ -117,11 +117,10 @@ public abstract class Player {
 			System.out.println("Game is over due to stalemate.");
 			// TODO do this later
 		}
-		// System.out.println(newBoard); // uncomment to show every board
 		return new BoardTransition(this.board, newBoard, halfMove);
 	}
 
-	public boolean isCheckMate() { // Currently does not work
+	public boolean isCheckMate() {
 		if (!isNotInCheck && !(checkCanBeAvoided(this.legalMovesInPosition))) {
 			return true;
 		}

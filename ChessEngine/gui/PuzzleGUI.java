@@ -5,12 +5,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -20,6 +23,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
+import ai.KRKSolver;
+import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
@@ -31,9 +36,14 @@ import pieces.Piece;
  * This class is a simple GUI which will allow a user to play against the puzzle
  * solvers.
  * 
- * TODO: - 1.Hardcode some positions into a JFileMenu 2. Add a FEN-reader
- * feature 3. Fix GUI proportions so it looks better 4. Maybe refactor classes
- * into less messy structure? 5. Highlight legal moves? 
+ * TODO: 1. Add a FEN-reader feature
+ * 
+ * 2. Highlight legal moves?
+ * 
+ * 3. Add observer pattern to GUI so user doesn't have to click "make AI" move
+ * themselves? Would work best with SwingWorker threads (Time)
+ * 
+ * 4. Some sort of instruction is sorely needed
  * 
  ***/
 
@@ -56,10 +66,9 @@ public class PuzzleGUI extends JFrame {
 		final JMenuBar menuBar = new JMenuBar();
 		populateMenus(menuBar);
 		this.puzzleGUI.setJMenuBar(menuBar);
-		
 
 		this.currentChessBoard = Board.KRKMateInTwo();
-		this.puzzleGUI.add(sidePanel(), BorderLayout.EAST);
+		this.puzzleGUI.add(moveLogPanel(), BorderLayout.EAST);
 		this.puzzleGUI.add(turnToMove(), BorderLayout.NORTH); // this doesn't update
 
 		this.chessArea = new ChessBoardPanel();
@@ -73,54 +82,194 @@ public class PuzzleGUI extends JFrame {
 
 	private void populateMenus(JMenuBar menuBar) {
 		menuBar.add(createSettingsMenu());
-		menuBar.add(selectSideToPlay());
+		menuBar.add(selectPuzzleSolver());
+		menuBar.add(setKRKPositions());
+		menuBar.add(setKPKPositions());
 	}
 
 	private JMenu createSettingsMenu() {
 		final JMenu settingsMenu = new JMenu("Settings");
-		
-		final JMenuItem clearBoard = new JMenuItem("Clear the current Board");
+
 		final JMenuItem inputFEN = new JMenuItem("Play custom position with FEN notation.");
-		final JMenuItem selectKRKPuzzle = new JMenuItem("Play the King-Rook vs King endgame");
-		final JMenuItem selectKPKPuzzle = new JMenuItem("Play hte King-Pawn vs King endgame");
 		final JMenuItem exitItem = new JMenuItem("Exit the application");
 
-		settingsMenu.add(clearBoard);
+		exitItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("You have chosen to quit! Goodbye.");
+				System.exit(0);
+			}
+		});
+
 		settingsMenu.add(inputFEN);
-		settingsMenu.add(selectKRKPuzzle);
-		settingsMenu.add(selectKPKPuzzle);
 		settingsMenu.add(exitItem);
-		
-		// add action listeners here
-		
+
 		return settingsMenu;
 	}
 
-	private JMenu selectSideToPlay() {
-		final JMenu allianceMenu = new JMenu("Select Alliance");
-		final JMenuItem selectWhite = new JMenuItem("Play as White");
-		final JMenuItem selectBlack = new JMenuItem("Play as Black");
-		
-		allianceMenu.add(selectWhite);
-		allianceMenu.add(selectBlack);
-		
-		// add actionlisteners here
-		
-		return allianceMenu;
+	private JMenu setKRKPositions() {
+		final JMenu KRKMenu = new JMenu("Set KR-K Positions");
+
+		final JMenuItem playPositionOne = new JMenuItem("Play position #1");
+		final JMenuItem playPositionTwo = new JMenuItem("Play position #2");
+		final JMenuItem playPositionThree = new JMenuItem("Play position #3");
+
+		KRKMenu.add(playPositionOne);
+		KRKMenu.add(playPositionTwo);
+		KRKMenu.add(playPositionThree);
+
+		playPositionOne.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KRKMateInTwo());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		playPositionTwo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KRKMateInFive());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		playPositionTwo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KRKMateInFive());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		playPositionThree.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.TestBoard());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		return KRKMenu;
 	}
 
-	private JPanel sidePanel() {
-		// Use this sidepanel as a move log instead?
-		JPanel sidePanel = new JPanel();
-		JButton clearBoardButton = new JButton("Clear Board");
-		// Change to textfield where you can enter a FENString
-		sidePanel.add(clearBoardButton);
+	private JMenu setKPKPositions() {
+		final JMenu KPKMenu = new JMenu("Set KP-K Positions");
 
-		return sidePanel;
+		final JMenuItem mateInTwo = new JMenuItem("KPK needs to be made");
+		final JMenuItem mateInFive = new JMenuItem("KPK needs to be made");
+
+		KPKMenu.add(mateInTwo);
+		KPKMenu.add(mateInFive);
+
+		mateInTwo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KRKMateInTwo());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		mateInFive.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KRKMateInFive());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		return KPKMenu;
+	}
+
+	private JMenu selectPuzzleSolver() {
+		final JMenu gamePreferences = new JMenu("Set puzzlesolver");
+		final JMenuItem selectKRKPuzzle = new JMenuItem("Play the King-Rook vs King endgame");
+		final JMenuItem selectKPKPuzzle = new JMenuItem("Play the King-Pawn vs King endgame");
+		gamePreferences.add(selectKRKPuzzle);
+		gamePreferences.add(selectKPKPuzzle);
+
+		selectKRKPuzzle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				// set the puzzleSolver as the KRK puzzleSolver
+				System.out.println("You selected KRK");
+
+			}
+		});
+
+		selectKPKPuzzle.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				// set the puzzleSolver as the King-Pawn King solver
+				System.out.println("You selected KPK");
+
+			}
+		});
+
+		return gamePreferences;
+	}
+
+	private JPanel moveLogPanel() {
+		JPanel moveLogPanel = new JPanel();
+		JLabel moveLogLabel = new JLabel("Click when White's turn");
+		moveLogPanel.add(moveLogLabel);
+
+		JButton makeKRKMove = new JButton("Make KRKMove");
+		moveLogPanel.add(makeKRKMove);
+
+		makeKRKMove.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				KRKSolver k = new KRKSolver(getCurrentChessBoard());
+				Move AIMove = k.generateRestrictingMove(getCurrentChessBoard());
+
+				Board newBoard = AIMove.executeMoveAndBuildBoard();
+				// If you get far enough to implement undo-move features, use the below line of
+				// code
+				// BoardTransition newBoardPosition = new
+				// BoardTransition(getCurrentChessBoard(), newBoard, move);
+				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
+					setCurrentChessBoard(newBoard);
+					getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+				}
+
+				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+					popUpDialog("Checkmate! Please start a new game.");
+				}
+
+			}
+
+		});
+
+		return moveLogPanel;
 	}
 
 	private JLabel turnToMove() {
-		String turnString = "It is " + getCurrentChessBoard().getCurrentPlayer().getAlliance() + "'s turn to move.";
+		// String turnString = "It is " + getCurrentChessBoard().getCurrentPlayer() +
+		// "'s turn to move.";
+		String turnString = "Add a whose turn it is to play on this label. (CURRENTLY ALWAYS WHITE TO MOVE FIRST)";
 		JLabel turnLabel = new JLabel(turnString);
 		return turnLabel;
 	}
@@ -206,6 +355,7 @@ public class PuzzleGUI extends JFrame {
 
 							}
 						} else {
+
 							// second click
 							setDestinationTile(getCurrentChessBoard().getTile(getTileCoordinate()));
 							final Move move = MoveMaker.getMove(getCurrentChessBoard(),
@@ -232,9 +382,12 @@ public class PuzzleGUI extends JFrame {
 							setMovedPiece(null);
 							setOriginTile(null);
 							setDestinationTile(null);
+							if (!getCurrentChessBoard().getCurrentPlayer().getIsNotInCheck()
+									&& !getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+								popUpDialog(getCurrentChessBoard().getCurrentPlayer() + " is in check!");
+							}
 
 						}
-
 
 					} else if (event.getButton() == 3) {
 						// Right clicking on the board means that you remove all previous tile
@@ -247,9 +400,9 @@ public class PuzzleGUI extends JFrame {
 
 					}
 
-					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate() == true) {
+					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
 						popUpDialog("Checkmate! Please start a new game.");
-					} else if (getCurrentChessBoard().getCurrentPlayer().isStaleMate() == true) {
+					} else if (getCurrentChessBoard().getCurrentPlayer().isStaleMate()) { // DOES NOT WORK
 						popUpDialog("Stalemate! Please start a new game.");
 					}
 

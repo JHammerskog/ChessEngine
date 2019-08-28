@@ -265,10 +265,10 @@ public class Board {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(8, Alliance.BLACK));
+		b.setPiece(new King(35, Alliance.BLACK));
 
-		b.setPiece(new King(2, Alliance.WHITE));
-		b.setPiece(new Rook(1, Alliance.WHITE));
+		b.setPiece(new King(0, Alliance.WHITE));
+		b.setPiece(new Rook(4, Alliance.WHITE));
 
 		return b.build();
 	}

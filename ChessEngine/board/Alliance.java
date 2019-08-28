@@ -15,6 +15,11 @@ public enum Alliance {
 			return BLACK;
 		}
 
+		@Override
+		public String toString() {
+			return "W";
+		}
+
 	},
 	BLACK {
 
@@ -22,8 +27,14 @@ public enum Alliance {
 		public Alliance getOpponent() {
 			return WHITE;
 		}
+
+		@Override
+		public String toString() {
+			return "B";
+		}
 		
 	};
 	public abstract Alliance getOpponent();
+	public abstract String toString();
 }
 

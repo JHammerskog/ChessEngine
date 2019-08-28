@@ -28,7 +28,7 @@ public class BlackPlayer extends Player {
 	}
 	
 	public String toString() {
-		return "BLACK";
+		return "Black";
 	}
 
 	// Black Castling logic here if you have time

@@ -28,7 +28,7 @@ public class WhitePlayer extends Player {
 	}
 
 	public String toString() {
-		return "WHITE";
+		return "White";
 	}
 
 	// White Castling logic here if you have time
