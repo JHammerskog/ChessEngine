@@ -141,7 +141,7 @@ public abstract class Player {
 		for (Move move : threatenedPlayersLegalMoves) {
 			final Board potentialCheckMateBoard = move.executeMoveAndBuildBoard();
 			if (potentialCheckMateBoard.getOpponent(potentialCheckMateBoard.getCurrentPlayer().getAlliance())
-					.getIsNotInCheck() == true) { // On the new board, the current player's status is hte one we should check
+					.getIsNotInCheck() == true) { // On the new board, the current player's status is the one we should check
 				escapeMoves.add(move);
 			}
 		}

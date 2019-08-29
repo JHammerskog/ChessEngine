@@ -32,8 +32,8 @@ public class Bishop extends Piece {
 
 			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
 
-				if (identifyColumn(this.piecePosition) == 0 && ((candidateVector == -9) || (candidateVector == 7))
-						|| identifyColumn(this.piecePosition) == 7
+				if (identifyColumn(candidateCoordinate) == 0 && ((candidateVector == -9) || (candidateVector == 7))
+						|| identifyColumn(candidateCoordinate) == 7
 								&& ((candidateVector == -7) || (candidateVector == 9))) {
 					break;
 				}

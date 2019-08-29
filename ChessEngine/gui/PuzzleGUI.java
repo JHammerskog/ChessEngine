@@ -90,8 +90,18 @@ public class PuzzleGUI extends JFrame {
 	private JMenu createSettingsMenu() {
 		final JMenu settingsMenu = new JMenu("Settings");
 
-		final JMenuItem inputFEN = new JMenuItem("Play custom position with FEN notation.");
+		final JMenuItem startingPosition = new JMenuItem("Set the board to a chess starting position");
+		final JMenuItem inputFEN = new JMenuItem("Play custom position with FEN notation");
 		final JMenuItem exitItem = new JMenuItem("Exit the application");
+
+		startingPosition.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setCurrentChessBoard(Board.createStartingPosition());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+			}
+		});
 
 		exitItem.addActionListener(new ActionListener() {
 
@@ -102,6 +112,7 @@ public class PuzzleGUI extends JFrame {
 			}
 		});
 
+		settingsMenu.add(startingPosition);
 		settingsMenu.add(inputFEN);
 		settingsMenu.add(exitItem);
 
@@ -169,28 +180,41 @@ public class PuzzleGUI extends JFrame {
 	private JMenu setKPKPositions() {
 		final JMenu KPKMenu = new JMenu("Set KP-K Positions");
 
-		final JMenuItem mateInTwo = new JMenuItem("KPK needs to be made");
-		final JMenuItem mateInFive = new JMenuItem("KPK needs to be made");
+		final JMenuItem KPKPositionOne = new JMenuItem("KPK position #1");
+		final JMenuItem KPKPositionTwo = new JMenuItem("KPK position #2");
+		final JMenuItem KPKPositionThree = new JMenuItem("KPK position #3");
 
-		KPKMenu.add(mateInTwo);
-		KPKMenu.add(mateInFive);
+		KPKMenu.add(KPKPositionOne);
+		KPKMenu.add(KPKPositionTwo);
+		KPKMenu.add(KPKPositionThree);
 
-		mateInTwo.addActionListener(new ActionListener() {
+		KPKPositionOne.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KRKMateInTwo());
+				setCurrentChessBoard(Board.KPKBoardOne());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
 
 		});
 
-		mateInFive.addActionListener(new ActionListener() {
+		KPKPositionTwo.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KRKMateInFive());
+				setCurrentChessBoard(Board.KPKBoardTwo());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+
+		KPKPositionThree.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(Board.KPKBoardThree());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -404,6 +428,8 @@ public class PuzzleGUI extends JFrame {
 						popUpDialog("Checkmate! Please start a new game.");
 					} else if (getCurrentChessBoard().getCurrentPlayer().isStaleMate()) { // DOES NOT WORK
 						popUpDialog("Stalemate! Please start a new game.");
+					} else if (getCurrentChessBoard().onlyKingsLeft()) {
+						popUpDialog("Only kings are left, no possible way to win! Please start a new game.");
 					}
 
 				}

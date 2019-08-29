@@ -2,6 +2,7 @@ package board;
 
 import board.Board.Builder;
 import pieces.Piece;
+import pieces.Queen;
 
 /***
  * Move.java will contain the Move class and its children which are responsible
@@ -85,6 +86,44 @@ public abstract class Move {
 			}
 
 			b.setPiece(movedPiece.movePiece(this));
+			b.setNextPlayerToMove(board.getCurrentPlayer().getAlliance().getOpponent());
+
+			return b.build();
+		}
+	}
+
+	public static final class PawnPromotionMove extends Move {
+
+		final protected Piece attackedPiece;
+		// keeping this in case the promotion move is an attack move, will just be
+		// passed null for non attacking moves
+		// Another solution could be to have an attackingPromotionMove and a
+		// nonAttackingPromotionMove?
+
+		public PawnPromotionMove(Board board, Piece movedPiece, int destinationTile, Piece attackedPiece) {
+			super(board, movedPiece, destinationTile);
+			this.attackedPiece = attackedPiece;
+		}
+
+		@Override
+		public Board executeMoveAndBuildBoard() {
+			final Builder b = new Builder(); // Use this builder to return the new board
+
+			for (Piece piece : board.getActiveBlackPieces()) {
+				if (!(piece.equals(movedPiece)) && !(piece.equals(attackedPiece))) {
+					b.setPiece(piece);
+				}
+			}
+
+			for (Piece piece : board.getActiveWhitePieces()) {
+				if (!(piece.equals(movedPiece)) && !(piece.equals(attackedPiece))) {
+					b.setPiece(piece);
+				}
+			}
+
+			b.setPiece(new Queen(this.destinationTileCoordinate, this.movedPiece.getPieceAlliance()));
+			// Always make a queen for this iteration now, present player with options in
+			// future iterations
 			b.setNextPlayerToMove(board.getCurrentPlayer().getAlliance().getOpponent());
 
 			return b.build();

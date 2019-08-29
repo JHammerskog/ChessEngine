@@ -31,15 +31,17 @@ public class Queen extends Piece {
 		for (int candidateVector : possibleQueenMoves) {
 			candidateCoordinate = this.piecePosition;
 
-			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
+			
 
-				if ((identifyColumn(this.piecePosition) == 0
+			while (BoardUtility.validDestinationTile(candidateCoordinate)) {
+				if ((identifyColumn(candidateCoordinate) == 0
 						&& (candidateVector == -1 || candidateVector == -9 || candidateVector == 7))
-						|| ((identifyColumn(this.piecePosition) == 7
-								&& (candidateVector == 1 || candidateVector == -7 || candidateVector == 9)))) {
+						|| ((identifyColumn(candidateCoordinate) == 7)
+								&& (candidateVector == 1 || candidateVector == -7 || candidateVector == 9))) {
 
 					break;
 				}
+				
 
 				candidateCoordinate += candidateVector;
 

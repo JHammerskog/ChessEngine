@@ -153,6 +153,13 @@ public class Board {
 		throw new RuntimeException("Player type can only be 'BLACK' or 'WHITE'.");
 	}
 
+	public boolean onlyKingsLeft() {
+		if (getActiveBlackPieces().size() + getActiveWhitePieces().size() == 2) {
+			return true;
+		}
+		return false;
+	}
+
 	public String toString() {
 		StringBuilder strbuilder = new StringBuilder();
 		for (int i = 0; i < BoardUtility.numberOfTiles; i++) {
@@ -269,6 +276,59 @@ public class Board {
 
 		b.setPiece(new King(0, Alliance.WHITE));
 		b.setPiece(new Rook(4, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board KPKBoardOne() {
+		final Builder b = new Builder();
+
+		b.setNextPlayerToMove(Alliance.WHITE);
+
+		b.setPiece(new King(35, Alliance.BLACK));
+
+		b.setPiece(new King(17, Alliance.WHITE));
+		b.setPiece(new Pawn(24, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board KPKBoardTwo() {
+		final Builder b = new Builder();
+
+		b.setNextPlayerToMove(Alliance.WHITE);
+
+		b.setPiece(new King(48, Alliance.BLACK));
+
+		b.setPiece(new King(63, Alliance.WHITE));
+		b.setPiece(new Pawn(30, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board KPKBoardThree() {
+		final Builder b = new Builder();
+
+		b.setNextPlayerToMove(Alliance.WHITE);
+
+		b.setPiece(new King(30, Alliance.BLACK));
+
+		b.setPiece(new King(24, Alliance.WHITE));
+		b.setPiece(new Pawn(27, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board StaleMateBoard() {
+
+		final Builder b = new Builder();
+
+		b.setNextPlayerToMove(Alliance.BLACK);
+
+		b.setPiece(new King(15, Alliance.BLACK));
+
+		b.setPiece(new King(13, Alliance.WHITE));
+		b.setPiece(new Pawn(21, Alliance.WHITE));
 
 		return b.build();
 	}

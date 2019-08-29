@@ -20,6 +20,11 @@ public enum Alliance {
 			return "W";
 		}
 
+		@Override
+		public boolean isPromotionRow(int tileCoordinate) {
+			return BoardUtility.calculateRow(tileCoordinate) == 0;
+		}
+
 	},
 	BLACK {
 
@@ -32,9 +37,15 @@ public enum Alliance {
 		public String toString() {
 			return "B";
 		}
+
+		@Override
+		public boolean isPromotionRow(int tileCoordinate) {
+			return BoardUtility.calculateRow(tileCoordinate) == 7;
+		}
 		
 	};
 	public abstract Alliance getOpponent();
+	public abstract boolean isPromotionRow(int tileCoordinate);
 	public abstract String toString();
 }
 

@@ -9,6 +9,7 @@ import board.BoardUtility;
 import board.Move;
 import board.Move.AttackingMove;
 import board.Move.NonAttackingMove;
+import board.Move.PawnPromotionMove;
 import board.Tile;
 
 public class Pawn extends Piece {
@@ -24,12 +25,15 @@ public class Pawn extends Piece {
 		List<Move> legalMoves = new ArrayList<>();
 		int candidateCoordinate;
 
-		if (this.getPieceAlliance() == Alliance.WHITE) { // Not generic, maybe add isWhite/black method to Player enum
-			for (int i = 0; i < pawnVectors.length; i++) {
-				pawnVectors[i] = -pawnVectors[i]; // maybe find a better way for directionality
-			}
-		}
+//		if (this.getPieceAlliance() == Alliance.WHITE) { // Not generic, maybe add isWhite/black method to Player enum
+//			changePawnDirection();
+//		}
 		for (int candidateVector : pawnVectors) {
+
+			if (this.getPieceAlliance() == Alliance.WHITE && candidateVector > 0) {
+				candidateVector = -candidateVector;
+				// solution to a bug you couldn't figure out
+			}
 
 			candidateCoordinate = this.piecePosition + candidateVector;
 
@@ -40,8 +44,13 @@ public class Pawn extends Piece {
 			Tile candidateTile = board.getTile(candidateCoordinate);
 
 			if ((candidateVector == 8 || candidateVector == -8) && !candidateTile.tileIsOccupied()) {
+				if (!(this.getPieceAlliance().isPromotionRow(candidateCoordinate))) {
+					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
+				} else {
+					legalMoves.add(new PawnPromotionMove(board, this, candidateCoordinate, null));
 
-				legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
+				}
+
 			} else if ((candidateVector == 16 || candidateVector == -16)
 					&& this.isFirstMove /* && isBlack && on 7th row || isWhite and on 2nd row */) { // make more generic
 				final int tileBeforeCandidate = (candidateCoordinate - candidateVector) + (candidateVector / 2);
@@ -51,29 +60,40 @@ public class Pawn extends Piece {
 					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
 				}
 			} else if ((candidateVector == 7 || candidateVector == -7)
-					&& !(identifyColumn(candidateCoordinate) == 8 && (this.getPieceAlliance() == Alliance.WHITE))
-					|| !(identifyColumn(candidateCoordinate) == 1) && (this.getPieceAlliance() == Alliance.BLACK)) {
+					&& !(identifyColumn(candidateCoordinate) == 7 && (this.getPieceAlliance() == Alliance.WHITE))
+					|| !(identifyColumn(candidateCoordinate) == 0) && (this.getPieceAlliance() == Alliance.BLACK)) {
 				if (candidateTile.tileIsOccupied()) {
 					Piece pieceAtCandidateDestination = candidateTile.getPiece();
 					Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 					if (pieceColour != this.playerColour) {
-						legalMoves
-								.add(new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
+						if (!(this.getPieceAlliance().isPromotionRow(candidateCoordinate))) {
+							legalMoves.add(
+									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
+						} else {
+							legalMoves.add(new PawnPromotionMove(board, this, candidateCoordinate,
+									pieceAtCandidateDestination));
+						}
+
 					} else {
 						defendedPieces.add(pieceAtCandidateDestination);
 					}
 
 				} else if (candidateVector == 9
-						&& !(identifyColumn(candidateCoordinate) == 1 && (this.getPieceAlliance() == Alliance.WHITE))
-						|| !(identifyColumn(candidateCoordinate) == 8) && (this.getPieceAlliance() == Alliance.BLACK)) {
+						&& !(identifyColumn(candidateCoordinate) == 0 && (this.getPieceAlliance() == Alliance.WHITE))
+						|| !(identifyColumn(candidateCoordinate) == 7) && (this.getPieceAlliance() == Alliance.BLACK)) {
 					if (candidateTile.tileIsOccupied()) {
 						Piece pieceAtCandidateDestination = candidateTile.getPiece();
 						Alliance pieceColour = pieceAtCandidateDestination.getPieceAlliance();
 
 						if (pieceColour != this.playerColour) {
-							legalMoves.add(
-									new AttackingMove(board, this, candidateCoordinate, pieceAtCandidateDestination));
+							if (!(this.getPieceAlliance().isPromotionRow(candidateCoordinate))) {
+								legalMoves.add(new AttackingMove(board, this, candidateCoordinate,
+										pieceAtCandidateDestination));
+							} else {
+								legalMoves.add(new PawnPromotionMove(board, this, candidateCoordinate,
+										pieceAtCandidateDestination));
+							}
 						} else {
 							defendedPieces.add(pieceAtCandidateDestination);
 						}
@@ -84,6 +104,13 @@ public class Pawn extends Piece {
 
 		}
 		return legalMoves;
+	}
+
+	private void changePawnDirection() {
+		for (int i = 0; i < pawnVectors.length; i++) {
+			pawnVectors[i] = -pawnVectors[i]; // maybe find a better way for directionality
+		}
+
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import pieces.Piece;
 import pieces.Piece.PieceType;
 import pieces.Rook;
 
-public class KRKSolver {
+public class KRKSolver extends EndgameSolver {
 
 	/***
 	 * This class will contain the logic for solving a King-Rook vs King endgame.
@@ -49,26 +49,24 @@ public class KRKSolver {
 
 	private int matingEdge;
 
-	private boolean rookIsSafe;
-
-	private int directionToMatingCoordinates; // Informs king what direction it needs to move for the desired row/column
-
 	private final Board board;
 
 	private final Piece targetKing;
 	private final Piece loneRook;
 	private final Piece playerKing;
 
-	private int currentTargetKingRow;
-	private int currentTargetKingColumn;
+	private final int currentTargetKingRow;
+	private final int currentTargetKingColumn;
 
-	private int currentPlayerKingRow;
-	private int currentPlayerKingColumn;
+	private final int currentPlayerKingRow;
+	private final int currentPlayerKingColumn;
 
-	private int currentLoneRookRow;
-	private int currentLoneRookColumn;
+	private final int currentLoneRookRow;
+	private final int currentLoneRookColumn;
 
-	public KRKSolver(Board board) {
+	private final boolean rookIsSafe;
+
+	public KRKSolver(Board board)  {
 		this.board = board;
 
 		this.loneRook = findRook(board.getCurrentPlayer().getActivePieces());
@@ -374,10 +372,6 @@ public class KRKSolver {
 
 	// Helper functions
 
-	private boolean getPinAgainstColumn() {
-		return pinAgainstColumn;
-	}
-
 	public boolean waitingMoveRequired() { // if it is whites move and this returns true, a rook move must be made
 
 		int distanceBetweenKings = this.targetKing.getPiecePosition() - this.playerKing.getPiecePosition();
@@ -411,11 +405,11 @@ public class KRKSolver {
 	public int generateBestMatingEdge() { // Only works for mate on 1st and 8th rank currently
 		int matingEdge = -1;
 		int bestRow = -1;
-		int bestColumn = -1;
+		// int bestColumn = -1;
 
 		int targetKingRow = getTargetKingRow();
 
-		int targetKingColumn = getTargetKingColumn();
+		// int targetKingColumn = getTargetKingColumn();
 
 		if (targetKingRow > 3) {
 			bestRow = 7;
@@ -423,17 +417,8 @@ public class KRKSolver {
 			bestRow = 0;
 		}
 
-		if (targetKingColumn > 3) {
-			bestColumn = 7;
-		} else {
-			bestColumn = 0;
-		}
-
-		if (targetKingRow - bestRow > targetKingColumn - bestColumn) {
-
-		}
-
 		matingEdge = bestRow;
+		setPinAgainstColumn(false);
 
 		return matingEdge;
 	}
@@ -454,7 +439,7 @@ public class KRKSolver {
 				}
 			}
 		} else if (getPinAgainstColumn()) {
-			// same as above
+			// same as above but get columns instead of rows
 		}
 		return false;
 	}
@@ -488,7 +473,7 @@ public class KRKSolver {
 		throw new RuntimeException("This heuristic only works for a King-Rook vs. King endgame");
 	}
 
-	// getters
+	// getters & setter
 
 	public boolean getRookIsSafe() {
 		return rookIsSafe;
@@ -528,6 +513,14 @@ public class KRKSolver {
 
 	public Board getBoard() {
 		return board;
+	}
+	
+	private boolean getPinAgainstColumn() {
+		return pinAgainstColumn;
+	}
+
+	public void setPinAgainstColumn(boolean pinAgainstColumn) {
+		this.pinAgainstColumn = pinAgainstColumn;
 	}
 
 }
