@@ -77,6 +77,8 @@ public class PuzzleGUI extends JFrame {
 
 		this.puzzleGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.puzzleGUI.setVisible(true);
+		
+		displayInstructionPopUp(); // Displays instruction at the launch of the application
 
 	}
 
@@ -91,7 +93,8 @@ public class PuzzleGUI extends JFrame {
 		final JMenu settingsMenu = new JMenu("Settings");
 
 		final JMenuItem startingPosition = new JMenuItem("Set the board to a chess starting position");
-		final JMenuItem inputFEN = new JMenuItem("Play custom position with FEN notation");
+		final JMenuItem helpButton = new JMenuItem("Help - Instructions");
+		final JMenuItem clearBoard = new JMenuItem("Clear board.");
 		final JMenuItem exitItem = new JMenuItem("Exit the application");
 
 		startingPosition.addActionListener(new ActionListener() {
@@ -111,12 +114,50 @@ public class PuzzleGUI extends JFrame {
 				System.exit(0);
 			}
 		});
+		
+		helpButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				displayInstructionPopUp();
+			}
+
+		});
+		
+		clearBoard.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setCurrentChessBoard(Board.clearBoard());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+			}
+		});
 
 		settingsMenu.add(startingPosition);
-		settingsMenu.add(inputFEN);
+		settingsMenu.add(helpButton);
+		settingsMenu.add(clearBoard);
 		settingsMenu.add(exitItem);
 
 		return settingsMenu;
+	}
+	
+	private void displayInstructionPopUp() {
+		popUpDialog("Hi and welcome to the Endgame Puzzle solver!\n"
+				+ "\nPurpose of the game: "
+				+ "\nThe purpose of this application is to show case some heuristics that are able to solve endgame puzzles in chess."
+				+ "\nCurrently, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames "
+				+ "\n\nHow to make a manual move:\n"
+				+ "Simply click on a tile with a piece on it, and then click on the tile you want that piece to go."
+				+ "\nIf the move you are attempting to make is legal, the tile you clicked will be highlighted in a green colour."
+				+ "\nIf nothing happens - its probably the other players turn!\n"
+				+ "\nHow to make a 'heuristic move':\n\n"
+				+ "Simply click on the button to the right that corresponds to the endgame you want to play!\n"
+				+ "\n Menus: \n\n"
+				+ "If at any point you want to change the game settings, or you would like to view this message again,\n"
+				+ "simply navigate to the menu bar at the top.");
+		
+		// When development of KPK and KRK is finished, and the GUI has been fully optimized - remake this help message
+		
 	}
 
 	private JMenu setKRKPositions() {

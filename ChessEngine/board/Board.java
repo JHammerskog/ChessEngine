@@ -272,10 +272,10 @@ public class Board {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(35, Alliance.BLACK));
+		b.setPiece(new King(19, Alliance.BLACK));
 
-		b.setPiece(new King(0, Alliance.WHITE));
-		b.setPiece(new Rook(4, Alliance.WHITE));
+		b.setPiece(new King(37, Alliance.WHITE));
+		b.setPiece(new Rook(31, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -329,6 +329,13 @@ public class Board {
 
 		b.setPiece(new King(13, Alliance.WHITE));
 		b.setPiece(new Pawn(21, Alliance.WHITE));
+
+		return b.build();
+	}
+
+	public static Board clearBoard() { // This crashes the player class, try/catch the findKing() method and refactor
+		final Builder b = new Builder();
+		b.setNextPlayerToMove(Alliance.WHITE);
 
 		return b.build();
 	}

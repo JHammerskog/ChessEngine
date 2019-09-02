@@ -22,42 +22,22 @@ import pieces.Piece.PieceType;
 
 public class KPKSolver extends EndgameSolver {
 
-	private Board board;
 
-	private boolean pinAgainstColumn;
-	private final int matingEdge;
-
-	private final Piece targetKing;
-	private final Piece playerKing;
 	private final Piece lonePiece;
 
-	private int currentTargetKingColumn;
-	private int currentTargetKingRow;
-
-	private int currentPlayerKingRow;
-	private int currentPlayerKingColumn;
-
 	private final int stepsToPromotion;
-	private int playerKingStepsToDefense; // need good evaluation methods
+	private int playerKingStepsToDefense;
 	private int targetKingStepsToAttack;
 
 	public KPKSolver(Board board) {
-		this.board = board;
+		super(board);
+
 
 		this.lonePiece = findLonePiece(board.getCurrentPlayer().getActivePieces());
-		this.targetKing = board.getOpponent(board.getCurrentPlayer().getAlliance()).getPlayerKing();
-		this.playerKing = board.getCurrentPlayer().getPlayerKing();
-
-		this.currentTargetKingColumn = BoardUtility.calculateColumn(this.targetKing.getPiecePosition());
-		this.currentTargetKingRow = BoardUtility.calculateRow(this.targetKing.getPiecePosition());
-
-		this.currentPlayerKingRow = BoardUtility.calculateRow(this.playerKing.getPiecePosition());
-		this.currentPlayerKingColumn = BoardUtility.calculateColumn(this.playerKing.getPiecePosition());
 
 		this.stepsToPromotion = stepsToPromotion(this.lonePiece.getPiecePosition()); // will be redundant after
 																						// promotion
 
-		this.matingEdge = generateBestMatingEdge();
 
 		// check for cannotWinScenarios() last thing in constructor?
 
@@ -165,30 +145,10 @@ public class KPKSolver extends EndgameSolver {
 		}
 	}
 
-	public int generateBestMatingEdge() { // Only works for mate on 1st and 8th rank currently
-		int matingEdge = -1;
-		int bestRow = -1;
-//		int bestColumn = -1;
-
-		int targetKingRow = getCurrentTargetKingRow();
-
-//		int targetKingColumn = getCurrentTargetKingColumn();
-
-		if (targetKingRow > 3) {
-			bestRow = 7;
-		} else {
-			bestRow = 0;
-		}
-
-		matingEdge = bestRow;
-		setPinAgainstColumn(false);
-
-		return matingEdge;
-	}
 
 	public boolean couldBeCheckmatePosition() { // if it is whites move and this returns true, check queen moves for
 												// checkmate
-		int distanceBetweenKings = this.targetKing.getPiecePosition() - this.playerKing.getPiecePosition();
+		int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
 
 		if (getPinAgainstColumn()) {
 			if (distanceBetweenKings == -10 || distanceBetweenKings == -6 || distanceBetweenKings == -2
@@ -218,32 +178,6 @@ public class KPKSolver extends EndgameSolver {
 
 	// Getters and setter
 
-	public int getCurrentTargetKingColumn() {
-		return currentTargetKingColumn;
-	}
 
-	public int getCurrentTargetKingRow() {
-		return currentTargetKingRow;
-	}
-
-	public int getCurrentPlayerKingRow() {
-		return currentPlayerKingRow;
-	}
-
-	public int getCurrentPlayerKingColumn() {
-		return currentPlayerKingColumn;
-	}
-
-	private boolean getPinAgainstColumn() {
-		return pinAgainstColumn;
-	}
-
-	public void setPinAgainstColumn(boolean pinAgainstColumn) {
-		this.pinAgainstColumn = pinAgainstColumn;
-	}
-
-	public Board getBoard() {
-		return board;
-	}
 
 }

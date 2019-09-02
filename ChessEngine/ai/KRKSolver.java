@@ -13,7 +13,8 @@ import pieces.Rook;
 public class KRKSolver extends EndgameSolver {
 
 	/***
-	 * This class will contain the logic for solving a King-Rook vs King endgame.
+	 * This class will contain the logic for solving a King-Rook vs King endgame and
+	 * inherits from the EndgameSolver class.
 	 * 
 	 * This is the simplest type of endgame puzzle for a chess game, and the
 	 * starting point of this project.
@@ -23,17 +24,18 @@ public class KRKSolver extends EndgameSolver {
 	 * given to it, except for ones described in the "known bugs" section just
 	 * below.
 	 * 
+	 * In this iteration, working on being able to mate the opponents king on the
+	 * vertical edges of the board has been de-prioritized in favour of developing
+	 * more heuristics. There is however a lot of 'skeleton'-code which has not been
+	 * written out due to this de-prioritization. For future optimization, the
+	 * relevant code can just be plugged into the functions below as described by
+	 * comments.
 	 ***/
 
 	/*
 	 * Known Bugs/problems:
 	 * 
-	 * 1. GenerateBestMatingEdge only generates 1st and 8th row checkmates. For an
-	 * ideal solver, checkmating needs to happen on every side of the board.
-	 * Currently, logic is only implemented to checkmate on the top/bottom edges of
-	 * the board.
-	 * 
-	 * 2. If the playerKing is closer to the matingEdge than the targetKing, the
+	 * 1. If the playerKing is closer to the matingEdge than the targetKing, the
 	 * targetKing can block the playerKing from getting to the desired
 	 * restriction-row. This can be solved in two ways: 1) Through improving how the
 	 * king gets to the restricting row (by not just giving it a move, but telling
@@ -44,40 +46,17 @@ public class KRKSolver extends EndgameSolver {
 	 * 
 	 */
 
-	private boolean pinAgainstColumn; // if this is false, it means the pin is against a row (tile 0-7 and 56-63), if
-	// its true, then A or H file
-
-	private int matingEdge;
-
-	private final Board board;
-
-	private final Piece targetKing;
 	private final Piece loneRook;
-	private final Piece playerKing;
-
-	private final int currentTargetKingRow;
-	private final int currentTargetKingColumn;
-
-	private final int currentPlayerKingRow;
-	private final int currentPlayerKingColumn;
 
 	private final int currentLoneRookRow;
 	private final int currentLoneRookColumn;
 
 	private final boolean rookIsSafe;
 
-	public KRKSolver(Board board)  {
-		this.board = board;
+	public KRKSolver(Board board) {
+		super(board);
 
 		this.loneRook = findRook(board.getCurrentPlayer().getActivePieces());
-		this.targetKing = board.getOpponent(board.getCurrentPlayer().getAlliance()).getPlayerKing();
-		this.playerKing = board.getCurrentPlayer().getPlayerKing();
-
-		this.currentTargetKingColumn = BoardUtility.calculateColumn(this.targetKing.getPiecePosition());
-		this.currentTargetKingRow = BoardUtility.calculateRow(this.targetKing.getPiecePosition());
-
-		this.currentPlayerKingRow = BoardUtility.calculateRow(this.playerKing.getPiecePosition());
-		this.currentPlayerKingColumn = BoardUtility.calculateColumn(this.playerKing.getPiecePosition());
 
 		this.currentLoneRookRow = BoardUtility.calculateRow(this.loneRook.getPiecePosition());
 		this.currentLoneRookColumn = BoardUtility.calculateColumn(this.loneRook.getPiecePosition());
@@ -88,10 +67,6 @@ public class KRKSolver extends EndgameSolver {
 				.isEmpty(); // Rook is safe if it is defended or if the list of opponent attack moves on its
 							// tile is empty
 
-		this.matingEdge = generateBestMatingEdge();
-
-		// refactoring generateBestMatingEdge() is the key to fully solving this puzzle
-
 	}
 
 	public Move generateRestrictingMove(Board board) {
@@ -99,11 +74,6 @@ public class KRKSolver extends EndgameSolver {
 		if (!isRookAtMaximumRestriction()) {
 			return moveRookToMaximumRestriction();
 		}
-//		else if (!getRookIsSafe() && (getRookColumn() == 0 || getRookColumn() == 7)) {
-//			// NEEDS REFACTORING
-//			return moveRookAdjacentToMatingEdge(); // This will break everything up if waitingMove
-//													// is required
-//		}
 
 		if (!getRookIsSafe()) {
 			return makeRookSafetyMove();
@@ -304,21 +274,21 @@ public class KRKSolver extends EndgameSolver {
 		return false;
 	}
 
-	// KING LOGIC
+	// KING LOGIC This could also be moved to the endgame solver?
 
 	public Move makeKingRestrictingMove() { // Exception handling needed
 		Move kingRestrictingMove = null;
 
 		if (!getPinAgainstColumn()) {
-			if (getPlayerKingColumn() > getPlayerKingColumn()) {
-				kingRestrictingMove = MoveMaker.getMove(this.board, playerKing.getPiecePosition(),
-						playerKing.getPiecePosition() - 1);
+			if (getPlayerKingColumn() > getTargetKingColumn()) {
+				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
+						getPlayerKing().getPiecePosition() - 1);
 				if (pieceWouldBeSafeNextTurn(kingRestrictingMove)) {
 					return kingRestrictingMove;
 				}
 			} else {
-				kingRestrictingMove = MoveMaker.getMove(this.board, playerKing.getPiecePosition(),
-						playerKing.getPiecePosition() + 1);
+				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
+						getPlayerKing().getPiecePosition() + 1);
 				if (pieceWouldBeSafeNextTurn(kingRestrictingMove)) {
 					return kingRestrictingMove;
 				}
@@ -361,8 +331,8 @@ public class KRKSolver extends EndgameSolver {
 			}
 		}
 
-		moveTowardRestriction = MoveMaker.getMove(this.board, playerKing.getPiecePosition(),
-				playerKing.getPiecePosition() + direction);
+		moveTowardRestriction = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
+				getPlayerKing().getPiecePosition() + direction);
 		if (pieceWouldBeSafeNextTurn(moveTowardRestriction)) {
 			return moveTowardRestriction;
 		}
@@ -374,7 +344,7 @@ public class KRKSolver extends EndgameSolver {
 
 	public boolean waitingMoveRequired() { // if it is whites move and this returns true, a rook move must be made
 
-		int distanceBetweenKings = this.targetKing.getPiecePosition() - this.playerKing.getPiecePosition();
+		int distanceBetweenKings = getTargetKing().getPiecePosition() - this.getPlayerKing().getPiecePosition();
 
 		if (getPinAgainstColumn()) {
 			if (distanceBetweenKings == -10 || distanceBetweenKings == -6 || distanceBetweenKings == 6
@@ -392,62 +362,10 @@ public class KRKSolver extends EndgameSolver {
 		return false;
 	}
 
-	public boolean pieceWouldBeSafeNextTurn(Move madeMove) {
-		Board newBoard = madeMove.executeMoveAndBuildBoard();
-
-		if (newBoard.getCurrentPlayer().attacksOnTile(newBoard.getCurrentPlayer().getLegalMovesInPosition(),
-				madeMove.getDestinationTileCoordinate()).isEmpty()) {
-			return true;
-		}
-		return false;
-	}
-
-	public int generateBestMatingEdge() { // Only works for mate on 1st and 8th rank currently
-		int matingEdge = -1;
-		int bestRow = -1;
-		// int bestColumn = -1;
-
-		int targetKingRow = getTargetKingRow();
-
-		// int targetKingColumn = getTargetKingColumn();
-
-		if (targetKingRow > 3) {
-			bestRow = 7;
-		} else {
-			bestRow = 0;
-		}
-
-		matingEdge = bestRow;
-		setPinAgainstColumn(false);
-
-		return matingEdge;
-	}
-
-	public boolean isKingOnRestrictingRow(int matingEdge) {
-
-		if (!getPinAgainstColumn()) {
-
-			int rowsBetweenKings = getTargetKingRow() - getPlayerKingRow();
-
-			if (matingEdge == 0) {
-				if (rowsBetweenKings == -2) {
-					return true;
-				}
-			} else if (matingEdge == 7) {
-				if (rowsBetweenKings == 2) {
-					return true;
-				}
-			}
-		} else if (getPinAgainstColumn()) {
-			// same as above but get columns instead of rows
-		}
-		return false;
-	}
-
 	public boolean kingsAreInOpposition() { // Works and needed
 
 		int playerKingPosition = this.board.getCurrentPlayer().getPlayerKing().getPiecePosition();
-		int distanceBetweenKings = this.targetKing.getPiecePosition() - playerKingPosition;
+		int distanceBetweenKings = getTargetKing().getPiecePosition() - playerKingPosition;
 
 		if (getPinAgainstColumn()) { // If pin is against column
 			if (distanceBetweenKings == -2 || distanceBetweenKings == 2) {
@@ -483,44 +401,12 @@ public class KRKSolver extends EndgameSolver {
 		return this.currentLoneRookRow;
 	}
 
-	public int getTargetKingRow() {
-		return this.currentTargetKingRow;
-	}
-
-	public int getPlayerKingRow() {
-		return this.currentPlayerKingRow;
-	}
-
 	public int getRookColumn() {
 		return this.currentLoneRookColumn;
 	}
 
-	public int getTargetKingColumn() {
-		return this.currentTargetKingColumn;
-	}
-
-	public int getPlayerKingColumn() {
-		return this.currentPlayerKingColumn;
-	}
-
 	public boolean isRookDefended() {
 		return BoardUtility.isPieceDefended(this.loneRook, this.board);
-	}
-
-	public int getMatingEdge() {
-		return matingEdge;
-	}
-
-	public Board getBoard() {
-		return board;
-	}
-	
-	private boolean getPinAgainstColumn() {
-		return pinAgainstColumn;
-	}
-
-	public void setPinAgainstColumn(boolean pinAgainstColumn) {
-		this.pinAgainstColumn = pinAgainstColumn;
 	}
 
 }

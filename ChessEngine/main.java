@@ -1,15 +1,10 @@
-import javax.swing.JFrame;
-
-import ai.MiniMax;
-import board.Board;
-import board.Move;
 import gui.PuzzleGUI;
 
 public class main {
 
 	public static void main(String[] args) {
 
-		PuzzleGUI puzzleGUI = new PuzzleGUI();
+		PuzzleGUI puzzleGUI = new PuzzleGUI(); // This call starts the GUI itself
 
 // 		Board b = Board.createStartingPosition();
 //		Board b = Board.KRKMateInTwo();
