@@ -64,7 +64,7 @@ public class EndgameSolver {
 		return matingEdge;
 	}
 
-	public boolean pieceWouldBeSafeNextTurn(Move madeMove) {
+	public boolean pieceNotAttackedAfterMove(Move madeMove) {
 		Board newBoard = madeMove.executeMoveAndBuildBoard();
 
 		if (newBoard.getCurrentPlayer().attacksOnTile(newBoard.getCurrentPlayer().getLegalMovesInPosition(),
@@ -74,26 +74,6 @@ public class EndgameSolver {
 		return false;
 	}
 
-	public boolean isKingOnRestrictingRow(int matingEdge) {
-
-		if (!getPinAgainstColumn()) {
-
-			int rowsBetweenKings = getTargetKingRow() - getPlayerKingRow();
-
-			if (matingEdge == 0) {
-				if (rowsBetweenKings == -2) {
-					return true;
-				}
-			} else if (matingEdge == 7) {
-				if (rowsBetweenKings == 2) {
-					return true;
-				}
-			}
-		} else if (getPinAgainstColumn()) {
-			// same as above but get columns instead of rows
-		}
-		return false;
-	}
 
 	public int getTargetKingRow() {
 		return this.currentTargetKingRow;

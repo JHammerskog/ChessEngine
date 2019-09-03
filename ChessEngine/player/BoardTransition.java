@@ -17,7 +17,7 @@ public class BoardTransition {
 
 	private Board newBoard;
 
-	// below variables are currently redundant, but will be helpful
+	// below variables are currently redundant, but will be helpful with further work
 	private Board oldBoard;
 	private Move madeMove;
 

@@ -9,11 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
+import ai.KPKSolver;
 import ai.KRKSolver;
 import board.Alliance;
 import board.Board;
@@ -77,14 +81,13 @@ public class PuzzleGUI extends JFrame {
 
 		this.puzzleGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.puzzleGUI.setVisible(true);
-		
+
 		displayInstructionPopUp(); // Displays instruction at the launch of the application
 
 	}
 
 	private void populateMenus(JMenuBar menuBar) {
 		menuBar.add(createSettingsMenu());
-		menuBar.add(selectPuzzleSolver());
 		menuBar.add(setKRKPositions());
 		menuBar.add(setKPKPositions());
 	}
@@ -114,7 +117,7 @@ public class PuzzleGUI extends JFrame {
 				System.exit(0);
 			}
 		});
-		
+
 		helpButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -123,7 +126,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		clearBoard.addActionListener(new ActionListener() {
 
 			@Override
@@ -140,10 +143,9 @@ public class PuzzleGUI extends JFrame {
 
 		return settingsMenu;
 	}
-	
+
 	private void displayInstructionPopUp() {
-		popUpDialog("Hi and welcome to the Endgame Puzzle solver!\n"
-				+ "\nPurpose of the game: "
+		popUpDialog("Hi and welcome to the Endgame Puzzle solver!\n" + "\nPurpose of the game: "
 				+ "\nThe purpose of this application is to show case some heuristics that are able to solve endgame puzzles in chess."
 				+ "\nCurrently, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames "
 				+ "\n\nHow to make a manual move:\n"
@@ -155,9 +157,10 @@ public class PuzzleGUI extends JFrame {
 				+ "\n Menus: \n\n"
 				+ "If at any point you want to change the game settings, or you would like to view this message again,\n"
 				+ "simply navigate to the menu bar at the top.");
-		
-		// When development of KPK and KRK is finished, and the GUI has been fully optimized - remake this help message
-		
+
+		// When development of KPK and KRK is finished, and the GUI has been fully
+		// optimized - remake this help message
+
 	}
 
 	private JMenu setKRKPositions() {
@@ -233,7 +236,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KPKBoardOne());
+				setCurrentChessBoard(Board.queenBoard());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -265,42 +268,15 @@ public class PuzzleGUI extends JFrame {
 		return KPKMenu;
 	}
 
-	private JMenu selectPuzzleSolver() {
-		final JMenu gamePreferences = new JMenu("Set puzzlesolver");
-		final JMenuItem selectKRKPuzzle = new JMenuItem("Play the King-Rook vs King endgame");
-		final JMenuItem selectKPKPuzzle = new JMenuItem("Play the King-Pawn vs King endgame");
-		gamePreferences.add(selectKRKPuzzle);
-		gamePreferences.add(selectKPKPuzzle);
-
-		selectKRKPuzzle.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				// set the puzzleSolver as the KRK puzzleSolver
-				System.out.println("You selected KRK");
-
-			}
-		});
-
-		selectKPKPuzzle.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				// set the puzzleSolver as the King-Pawn King solver
-				System.out.println("You selected KPK");
-
-			}
-		});
-
-		return gamePreferences;
-	}
-
-	private JPanel moveLogPanel() {
+	private JPanel moveLogPanel() { // change this to piece panel
 		JPanel moveLogPanel = new JPanel();
 		JLabel moveLogLabel = new JLabel("Click when White's turn");
 		moveLogPanel.add(moveLogLabel);
 
 		JButton makeKRKMove = new JButton("Make KRKMove");
+		JButton makeKPKMove = new JButton("Make KPKMove");
 		moveLogPanel.add(makeKRKMove);
+		moveLogPanel.add(makeKPKMove);
 
 		makeKRKMove.addActionListener(new ActionListener() {
 
@@ -310,16 +286,30 @@ public class PuzzleGUI extends JFrame {
 				Move AIMove = k.generateRestrictingMove(getCurrentChessBoard());
 
 				Board newBoard = AIMove.executeMoveAndBuildBoard();
-				// If you get far enough to implement undo-move features, use the below line of
-				// code
-				// BoardTransition newBoardPosition = new
-				// BoardTransition(getCurrentChessBoard(), newBoard, move);
 				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
 					setCurrentChessBoard(newBoard);
 					getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
-
+				}
+				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+					popUpDialog("Checkmate! Please start a new game.");
 				}
 
+			}
+
+		});
+		
+		makeKPKMove.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				KPKSolver k = new KPKSolver(getCurrentChessBoard());
+				Move AIMove = k.generateKPKMove(getCurrentChessBoard());
+
+				Board newBoard = AIMove.executeMoveAndBuildBoard();
+				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
+					setCurrentChessBoard(newBoard);
+					getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+				}
 				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
 					popUpDialog("Checkmate! Please start a new game.");
 				}
@@ -400,9 +390,6 @@ public class PuzzleGUI extends JFrame {
 
 				@Override
 				public void mouseClicked(MouseEvent event) {
-
-					// This getButton() check could break the GUI for custom mice with a differetn
-					// button order than just #1 = leftclick & #3 = rightclick
 					if (event.getButton() == 1) {
 						// highlight clicked square
 						// This should automattically be removed when board is redrawn after a move
@@ -532,7 +519,43 @@ public class PuzzleGUI extends JFrame {
 
 		}
 
+		public void setPieceImageOnTile(Board board) { // This method will replace setPieceOnTile()
+			// removeAll needed here?
+
+			if (board.getTile(getTileCoordinate()).tileIsOccupied()) {
+				Alliance pieceAlliance = board.getTile(getTileCoordinate()).getPiece().getPieceAlliance();
+
+				String pathToImageDirectory = ""; // Set this when you add piece images
+				pathToImageDirectory += addAllianceToDirectoryPath(pieceAlliance);
+				BufferedImage pieceImage = null;
+
+				try {
+					pieceImage = ImageIO.read(new File(
+							pathToImageDirectory + board.getTile(getTileCoordinate()).getPiece().toString() + ".png"));
+					// update this when you add image folder
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					add(new JLabel(new ImageIcon(pieceImage)));
+				}
+			}
+
+		}
+
+		public String addAllianceToDirectoryPath(Alliance alliance) {
+			String pathString = "/";
+			if (alliance == Alliance.WHITE) {
+				pathString += "WhitePieces/";
+			} else if (alliance == Alliance.BLACK) {
+				pathString += "BlackPieces/";
+			}
+			return pathString;
+		}
+
 		public Color setTileColour() {
+
+			// The implementation of this method directly relates to the features of a
+			// chessboard.
 
 			Color lightTileColour = new Color(255, 255, 204);
 			Color darkTileColour = new Color(153, 102, 0);

@@ -25,13 +25,17 @@ public abstract class Player {
 
 	protected Board board;
 
-	public Player(Board board, List<Move> legalMovesInPosition, List<Move> opponentMovesInPosition, List<Piece> defendedPieces) {
+	public Player(Board board, List<Move> legalMovesInPosition, List<Move> opponentMovesInPosition,
+			List<Piece> defendedPieces) {
 		this.board = board;
 		this.legalMovesInPosition = legalMovesInPosition;
 		this.defendedPieces = defendedPieces;
 
 		this.playerKing = findKing();
-		this.isNotInCheck = attacksOnTile(opponentMovesInPosition, playerKing.getPiecePosition()).isEmpty();
+		if (!(this.playerKing == null)) {
+			this.isNotInCheck = attacksOnTile(opponentMovesInPosition, playerKing.getPiecePosition()).isEmpty();
+		} // Without this check, the "clear board" feature of the GUI causes a null
+			// pointer exception
 
 	}
 
@@ -49,7 +53,9 @@ public abstract class Player {
 				return piece;
 			}
 		}
-		throw new RuntimeException("Illegal game state. Both players must have a king");
+		// throw new RuntimeException("Illegal game state. Both players must have a
+		// king");
+		return null;
 	}
 
 	public List<Move> attacksOnTile(List<Move> opponentMoves, int tileCoordinate) {
@@ -63,10 +69,9 @@ public abstract class Player {
 		}
 		return Collections.unmodifiableList(movesAttackingTile);
 	}
-	
+
 	public boolean tileIsDefended(List<Move> legalMoves, int tileCoordinate) {
-		
-		
+
 		final List<Move> movesDefendingTile = new ArrayList<>();
 
 		for (Move possibleDefensiveMove : legalMoves) {
@@ -74,8 +79,8 @@ public abstract class Player {
 				movesDefendingTile.add(possibleDefensiveMove);
 			}
 		}
-		
-		if(movesDefendingTile.isEmpty()) {
+
+		if (movesDefendingTile.isEmpty()) {
 			return false;
 		} else {
 			return true;
@@ -121,27 +126,30 @@ public abstract class Player {
 	}
 
 	public boolean isCheckMate() {
-		if (!isNotInCheck && !(checkCanBeAvoided(this.legalMovesInPosition))) {
+		if (!isNotInCheck && !(playerHasLegalMoves(this.legalMovesInPosition))) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isStaleMate() { // Currently does not work
-		if (isNotInCheck && legalMovesInPosition.isEmpty()) {
+		if (isNotInCheck && !(playerHasLegalMoves(this.legalMovesInPosition))) {
 			return true;
 		}
 		return false;
 	}
 
-	public boolean checkCanBeAvoided(List<Move> threatenedPlayersLegalMoves) {
+	public boolean playerHasLegalMoves(List<Move> threatenedPlayersLegalMoves) {
+		// Since the pieces generate pseudolegal moves, this method actually checks
+		// whether a move would lead to an illegal position or not.
 
 		List<Move> escapeMoves = new ArrayList<>();
 
 		for (Move move : threatenedPlayersLegalMoves) {
 			final Board potentialCheckMateBoard = move.executeMoveAndBuildBoard();
 			if (potentialCheckMateBoard.getOpponent(potentialCheckMateBoard.getCurrentPlayer().getAlliance())
-					.getIsNotInCheck() == true) { // On the new board, the current player's status is the one we should check
+					.getIsNotInCheck() == true) { // On the new board, the current player's status is the one we should
+													// check
 				escapeMoves.add(move);
 			}
 		}
@@ -165,13 +173,15 @@ public abstract class Player {
 	public List<Move> getLegalMovesInPosition() {
 		return legalMovesInPosition;
 	}
-	
+
 	public List<Piece> getDefendedPieces() {
 		return defendedPieces;
 	}
 
 	public abstract List<Piece> getActivePieces();
+
 	public abstract Alliance getAlliance();
+
 	public abstract Alliance getOpponentAlliance();
 
 }

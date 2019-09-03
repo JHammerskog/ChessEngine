@@ -2,6 +2,7 @@ package ai;
 
 import java.util.List;
 
+import board.Alliance;
 import board.Board;
 import board.BoardUtility;
 import board.Move;
@@ -61,7 +62,7 @@ public class KRKSolver extends EndgameSolver {
 		this.currentLoneRookRow = BoardUtility.calculateRow(this.loneRook.getPiecePosition());
 		this.currentLoneRookColumn = BoardUtility.calculateColumn(this.loneRook.getPiecePosition());
 
-		this.rookIsSafe = isRookDefended() || board.getCurrentPlayer()
+		this.rookIsSafe = isRookDefended(getRook().getPieceAlliance()) || board.getCurrentPlayer()
 				.attacksOnTile(board.getOpponent(board.getCurrentPlayer().getAlliance()).getLegalMovesInPosition(),
 						this.loneRook.getPiecePosition())
 				.isEmpty(); // Rook is safe if it is defended or if the list of opponent attack moves on its
@@ -80,6 +81,7 @@ public class KRKSolver extends EndgameSolver {
 		}
 
 		if (!isKingOnRestrictingRow(getMatingEdge())) {
+			// try catch needed here
 			return moveKingTowardRestrictingRow();
 		}
 
@@ -95,6 +97,7 @@ public class KRKSolver extends EndgameSolver {
 			return generateRookWaitingMove();
 
 		} else {
+			// try catch needed here
 			return makeKingRestrictingMove();
 		}
 
@@ -112,7 +115,7 @@ public class KRKSolver extends EndgameSolver {
 				for (Move move : loneRook.calculateLegalMoves(this.board)) { // try to improve this
 					if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == rookTargetRow) {
 
-						if (pieceWouldBeSafeNextTurn(move)) {
+						if (pieceNotAttackedAfterMove(move)) {
 							return move;
 						}
 
@@ -122,7 +125,7 @@ public class KRKSolver extends EndgameSolver {
 				rookTargetRow = getTargetKingRow() - 1;
 				for (Move move : loneRook.calculateLegalMoves(this.board)) { // try to improve this
 					if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == rookTargetRow) {
-						if (pieceWouldBeSafeNextTurn(move)) {
+						if (pieceNotAttackedAfterMove(move)) {
 							return move;
 						}
 					}
@@ -168,7 +171,7 @@ public class KRKSolver extends EndgameSolver {
 							|| BoardUtility.calculateColumn(move.getDestinationTileCoordinate()) == 7) { // edge of
 																											// board
 						safetyMove = move;
-						if (pieceWouldBeSafeNextTurn(safetyMove)) {
+						if (pieceNotAttackedAfterMove(safetyMove)) {
 							return safetyMove;
 						}
 					}
@@ -181,7 +184,7 @@ public class KRKSolver extends EndgameSolver {
 				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == 0
 						|| BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == 7) {
 					safetyMove = move;
-					if (pieceWouldBeSafeNextTurn(safetyMove)) {
+					if (pieceNotAttackedAfterMove(safetyMove)) {
 						return safetyMove;
 					}
 				}
@@ -208,13 +211,13 @@ public class KRKSolver extends EndgameSolver {
 			if (getRookRow() > matingEdge) {
 				checkingMove = MoveMaker.getMove(this.board, this.loneRook.getPiecePosition(),
 						this.loneRook.getPiecePosition() - 8);
-				if (pieceWouldBeSafeNextTurn(checkingMove)) {
+				if (pieceNotAttackedAfterMove(checkingMove)) {
 					return checkingMove;
 				}
 			} else {
 				checkingMove = MoveMaker.getMove(this.board, this.loneRook.getPiecePosition(),
 						this.loneRook.getPiecePosition() + 8);
-				if (pieceWouldBeSafeNextTurn(checkingMove)) {
+				if (pieceNotAttackedAfterMove(checkingMove)) {
 					return checkingMove;
 				}
 			}
@@ -237,7 +240,7 @@ public class KRKSolver extends EndgameSolver {
 
 			}
 
-			if (!pieceWouldBeSafeNextTurn(move)) {
+			if (!pieceNotAttackedAfterMove(move)) {
 				return makeRookSafetyMove();
 			}
 
@@ -283,13 +286,13 @@ public class KRKSolver extends EndgameSolver {
 			if (getPlayerKingColumn() > getTargetKingColumn()) {
 				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
 						getPlayerKing().getPiecePosition() - 1);
-				if (pieceWouldBeSafeNextTurn(kingRestrictingMove)) {
+				if (pieceNotAttackedAfterMove(kingRestrictingMove)) {
 					return kingRestrictingMove;
 				}
 			} else {
 				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
 						getPlayerKing().getPiecePosition() + 1);
-				if (pieceWouldBeSafeNextTurn(kingRestrictingMove)) {
+				if (pieceNotAttackedAfterMove(kingRestrictingMove)) {
 					return kingRestrictingMove;
 				}
 			}
@@ -333,7 +336,7 @@ public class KRKSolver extends EndgameSolver {
 
 		moveTowardRestriction = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
 				getPlayerKing().getPiecePosition() + direction);
-		if (pieceWouldBeSafeNextTurn(moveTowardRestriction)) {
+		if (pieceNotAttackedAfterMove(moveTowardRestriction)) {
 			return moveTowardRestriction;
 		}
 
@@ -341,6 +344,27 @@ public class KRKSolver extends EndgameSolver {
 	}
 
 	// Helper functions
+
+	public boolean isKingOnRestrictingRow(int matingEdge) {
+
+		if (!getPinAgainstColumn()) {
+
+			int rowsBetweenKings = getTargetKingRow() - getPlayerKingRow();
+
+			if (matingEdge == 0) {
+				if (rowsBetweenKings == -2) {
+					return true;
+				}
+			} else if (matingEdge == 7) {
+				if (rowsBetweenKings == 2) {
+					return true;
+				}
+			}
+		} else if (getPinAgainstColumn()) {
+			// same as above but get columns instead of rows
+		}
+		return false;
+	}
 
 	public boolean waitingMoveRequired() { // if it is whites move and this returns true, a rook move must be made
 
@@ -396,6 +420,9 @@ public class KRKSolver extends EndgameSolver {
 	public boolean getRookIsSafe() {
 		return rookIsSafe;
 	}
+	public Rook getRook() {
+		return (Rook) loneRook;
+	}
 
 	public int getRookRow() {
 		return this.currentLoneRookRow;
@@ -405,8 +432,8 @@ public class KRKSolver extends EndgameSolver {
 		return this.currentLoneRookColumn;
 	}
 
-	public boolean isRookDefended() {
-		return BoardUtility.isPieceDefended(this.loneRook, this.board);
+	public boolean isRookDefended(Alliance alliance) {
+		return BoardUtility.isPieceDefended(getRook(), getBoard(), alliance);
 	}
 
 }

@@ -136,7 +136,11 @@ public abstract class Move {
 			for (Move move : board.getCurrentPlayer().getLegalMovesInPosition()) {
 				if (move.getDestinationTileCoordinate() == destinationTileCoordinate
 						&& move.getMovedPiece().getPiecePosition() == originTileCoordinate) {
-					return move;
+
+					Board newBoard = move.executeMoveAndBuildBoard();
+					if(newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck()) {
+						return move;
+					}				
 				}
 			}
 			return null;

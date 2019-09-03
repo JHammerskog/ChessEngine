@@ -83,12 +83,13 @@ public class BoardUtility {
 
 	}
 
-	public static boolean isPieceDefended(Piece piece, Board board) {
-		if (board.getCurrentPlayer().getDefendedPieces().contains(piece)) {
-			return true;
+	public static boolean isPieceDefended(Piece piece, Board board, Alliance alliance) {
+		if (alliance == Alliance.BLACK) {
+			return board.getBlackPlayer().getDefendedPieces().contains(piece);
+		} else if (alliance == Alliance.WHITE) {
+			return board.getWhitePlayer().getDefendedPieces().contains(piece);
 		}
-
-		return false;
+		throw new RuntimeException("Piece alliance broken!");
 	}
 
 	public static boolean validDestinationTile(int destPosition) {
@@ -98,7 +99,7 @@ public class BoardUtility {
 	public static int getNumberOfTiles() {
 		return numberOfTiles;
 	}
-	
+
 	public static int getNumberOfTilesPerColumn() {
 		return tilesPerColumn;
 	}
