@@ -55,6 +55,8 @@ public class PuzzleGUI extends JFrame {
 
 	private JFrame puzzleGUI;
 	private ChessBoardPanel chessArea;
+	// private JPanel turnLabelPanel;
+	private JLabel turnLabel;
 
 	private Board currentChessBoard;
 
@@ -71,9 +73,12 @@ public class PuzzleGUI extends JFrame {
 		populateMenus(menuBar);
 		this.puzzleGUI.setJMenuBar(menuBar);
 
-		this.currentChessBoard = Board.KRKMateInTwo();
-		this.puzzleGUI.add(moveLogPanel(), BorderLayout.EAST);
-		this.puzzleGUI.add(turnToMove(), BorderLayout.NORTH); // this doesn't update
+		this.currentChessBoard = Board.KPKBoardTwo();
+		this.puzzleGUI.add(heuristicPanel(), BorderLayout.SOUTH);
+
+		this.turnLabel = turnToMoveLabel();
+
+		this.puzzleGUI.add(this.turnLabel, BorderLayout.NORTH); // this doesn't update
 
 		this.chessArea = new ChessBoardPanel();
 
@@ -82,7 +87,8 @@ public class PuzzleGUI extends JFrame {
 		this.puzzleGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.puzzleGUI.setVisible(true);
 
-		displayInstructionPopUp(); // Displays instruction at the launch of the application
+		displayPurposeOfApplication();
+		displayMoveInstructions(); // Displays instruction at the launch of the application
 
 	}
 
@@ -90,13 +96,13 @@ public class PuzzleGUI extends JFrame {
 		menuBar.add(createSettingsMenu());
 		menuBar.add(setKRKPositions());
 		menuBar.add(setKPKPositions());
+		menuBar.add(createHelpMenu());
 	}
 
 	private JMenu createSettingsMenu() {
 		final JMenu settingsMenu = new JMenu("Settings");
 
 		final JMenuItem startingPosition = new JMenuItem("Set the board to a chess starting position");
-		final JMenuItem helpButton = new JMenuItem("Help - Instructions");
 		final JMenuItem clearBoard = new JMenuItem("Clear board.");
 		final JMenuItem exitItem = new JMenuItem("Exit the application");
 
@@ -118,15 +124,6 @@ public class PuzzleGUI extends JFrame {
 			}
 		});
 
-		helpButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				displayInstructionPopUp();
-			}
-
-		});
-
 		clearBoard.addActionListener(new ActionListener() {
 
 			@Override
@@ -137,26 +134,68 @@ public class PuzzleGUI extends JFrame {
 		});
 
 		settingsMenu.add(startingPosition);
-		settingsMenu.add(helpButton);
 		settingsMenu.add(clearBoard);
 		settingsMenu.add(exitItem);
 
 		return settingsMenu;
 	}
 
-	private void displayInstructionPopUp() {
-		popUpDialog("Hi and welcome to the Endgame Puzzle solver!\n" + "\nPurpose of the game: "
-				+ "\nThe purpose of this application is to show case some heuristics that are able to solve endgame puzzles in chess."
-				+ "\nCurrently, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames "
-				+ "\n\nHow to make a manual move:\n"
+	private JMenu createHelpMenu() {
+		final JMenu helpMenu = new JMenu("Help");
+
+		final JMenuItem moveInstructionButton = new JMenuItem("Controls/Move information");
+		final JMenuItem purposeOfApplicationButton = new JMenuItem("Purpose of Application.");
+
+		moveInstructionButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				displayMoveInstructions();
+			}
+
+		});
+
+		purposeOfApplicationButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setCurrentChessBoard(Board.clearBoard());
+				displayPurposeOfApplication();
+			}
+		});
+
+		helpMenu.add(moveInstructionButton);
+		helpMenu.add(purposeOfApplicationButton);
+		return helpMenu;
+	}
+
+	private void displayPurposeOfApplication() {
+		popUpDialog("Hi and welcome to the Endgame Puzzle solver!\n" + "\nPurpose of the application: \n"
+				+ "\nThe purpose of this application is to showcase some heuristics that are able to solve endgame puzzles in chess."
+				+ "\nThe search depth and branching factor of endgame positions in chess are astronomical, "
+				+ "\nso developing a computer move which ends in a desirable outcome (winning) is quite difficult!"
+				+ "\nThis application tries to replace brute-force methods (searching as many moves and positions as possible) "
+				+ "\nwith some neat heuristics which generate moves very quickly on low-level hardware."
+				+ "\n\nThe role of you, the user: \n"
+				+ "\nIn the current iteration, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames."
+				+ "\nYou as the user can use this user interface to test the developed heuristics.");
+
+		// ADD HOW TO SETUP A BOARD WHEN DONE
+	}
+
+	private void displayMoveInstructions() {
+		popUpDialog("How to make a manual move:\n"
 				+ "Simply click on a tile with a piece on it, and then click on the tile you want that piece to go."
 				+ "\nIf the move you are attempting to make is legal, the tile you clicked will be highlighted in a green colour."
-				+ "\nIf nothing happens - its probably the other players turn!\n"
-				+ "\nHow to make a 'heuristic move':\n\n"
-				+ "Simply click on the button to the right that corresponds to the endgame you want to play!\n"
-				+ "\n Menus: \n\n"
-				+ "If at any point you want to change the game settings, or you would like to view this message again,\n"
-				+ "simply navigate to the menu bar at the top.");
+				+ "\nIf nothing happens - its probably the other players turn!"
+				+ "\nIf you are wondering which piece to move, there is an indicator just above the board and underneath the menubar."
+				+ "\n\nHow to make a 'heuristic move':\n"
+				+ "\nAt the bottom of this frame, there are some buttons which enable you to generate a heuristic move."
+				+ "\nAs the user, you are able to move as both white and black if you wish. "
+				+ "\nHowever, if you would like to test one of the developed heuristics simply click on the button that corresponds to the endgame puzzle you would like to solve."
+				+ "\n\nMenus: \n"
+				+ "\nIf at any point you want to change the game settings, or you would like to view this message again,"
+				+ "\nsimply navigate to the menu bar at the top.");
 
 		// When development of KPK and KRK is finished, and the GUI has been fully
 		// optimized - remake this help message
@@ -268,15 +307,15 @@ public class PuzzleGUI extends JFrame {
 		return KPKMenu;
 	}
 
-	private JPanel moveLogPanel() { // change this to piece panel
-		JPanel moveLogPanel = new JPanel();
+	private JPanel heuristicPanel() { // change this to piece panel
+		JPanel heuristicPanel = new JPanel();
 		JLabel moveLogLabel = new JLabel("Click when White's turn");
-		moveLogPanel.add(moveLogLabel);
+		heuristicPanel.add(moveLogLabel);
 
 		JButton makeKRKMove = new JButton("Make KRKMove");
 		JButton makeKPKMove = new JButton("Make KPKMove");
-		moveLogPanel.add(makeKRKMove);
-		moveLogPanel.add(makeKPKMove);
+		heuristicPanel.add(makeKRKMove);
+		heuristicPanel.add(makeKPKMove);
 
 		makeKRKMove.addActionListener(new ActionListener() {
 
@@ -293,17 +332,22 @@ public class PuzzleGUI extends JFrame {
 				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
 					popUpDialog("Checkmate! Please start a new game.");
 				}
+				updateTurnLabel(turnLabel, newBoard);
 
 			}
 
 		});
-		
+
 		makeKPKMove.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				KPKSolver k = new KPKSolver(getCurrentChessBoard());
 				Move AIMove = k.generateKPKMove(getCurrentChessBoard());
+				
+				if(AIMove == null) {
+					popUpDialog("The heuristic has determined that this position will lead to a stalemate! Please choose a new position.");
+				}
 
 				Board newBoard = AIMove.executeMoveAndBuildBoard();
 				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
@@ -314,19 +358,23 @@ public class PuzzleGUI extends JFrame {
 					popUpDialog("Checkmate! Please start a new game.");
 				}
 
+				updateTurnLabel(turnLabel, newBoard);
+
 			}
 
 		});
 
-		return moveLogPanel;
+		return heuristicPanel;
 	}
 
-	private JLabel turnToMove() {
-		// String turnString = "It is " + getCurrentChessBoard().getCurrentPlayer() +
-		// "'s turn to move.";
-		String turnString = "Add a whose turn it is to play on this label. (CURRENTLY ALWAYS WHITE TO MOVE FIRST)";
+	private JLabel turnToMoveLabel() {
+		String turnString = "It is " + getCurrentChessBoard().getCurrentPlayer().toString() + "'s turn to move.";
 		JLabel turnLabel = new JLabel(turnString);
 		return turnLabel;
+	}
+
+	public void updateTurnLabel(JLabel turnLabel, Board board) {
+		this.turnLabel.setText("It is " + board.getCurrentPlayer().toString() + "'s turn to move.");
 	}
 
 	private void popUpDialog(String popUp) {
@@ -424,7 +472,8 @@ public class PuzzleGUI extends JFrame {
 										.getIsNotInCheck() == true) {
 									setCurrentChessBoard(newBoard);
 									getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
-
+									// updateTurnLabel(turnLabelPanel, newBoard);
+									updateTurnLabel(turnLabel, newBoard);
 								}
 
 							}

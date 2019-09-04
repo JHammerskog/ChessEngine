@@ -81,7 +81,6 @@ public class KRKSolver extends EndgameSolver {
 		}
 
 		if (!isKingOnRestrictingRow(getMatingEdge())) {
-			// try catch needed here
 			return moveKingTowardRestrictingRow();
 		}
 
@@ -279,92 +278,10 @@ public class KRKSolver extends EndgameSolver {
 
 	// KING LOGIC This could also be moved to the endgame solver?
 
-	public Move makeKingRestrictingMove() { // Exception handling needed
-		Move kingRestrictingMove = null;
 
-		if (!getPinAgainstColumn()) {
-			if (getPlayerKingColumn() > getTargetKingColumn()) {
-				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
-						getPlayerKing().getPiecePosition() - 1);
-				if (pieceNotAttackedAfterMove(kingRestrictingMove)) {
-					return kingRestrictingMove;
-				}
-			} else {
-				kingRestrictingMove = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
-						getPlayerKing().getPiecePosition() + 1);
-				if (pieceNotAttackedAfterMove(kingRestrictingMove)) {
-					return kingRestrictingMove;
-				}
-			}
-		} else {
-			// do same as above, but return -8 or + 8 instead
-		}
-
-		return null;
-	}
-
-	public Move moveKingTowardRestrictingRow() { // Breaks down when piece is in the way or king moves into check
-		Move moveTowardRestriction = null;
-
-		int targetKingRowOrColumn = -1;
-		int direction = 1337;
-		if (getMatingEdge() == 0) {
-			targetKingRowOrColumn = getTargetKingRow() + 2;
-
-		} else if (getMatingEdge() == 7) {
-			targetKingRowOrColumn = getTargetKingRow() - 2;
-
-		}
-
-		if (!getPinAgainstColumn()) {
-			if (getPlayerKingRow() > targetKingRowOrColumn) {
-				direction = -8;
-
-			} else {
-				direction = 8;
-			}
-
-		} else if (getPinAgainstColumn()) {
-
-			if (getPlayerKingRow() > targetKingRowOrColumn) {
-				direction = -1;
-
-			} else {
-				direction = 1;
-			}
-		}
-
-		moveTowardRestriction = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
-				getPlayerKing().getPiecePosition() + direction);
-		if (pieceNotAttackedAfterMove(moveTowardRestriction)) {
-			return moveTowardRestriction;
-		}
-
-		throw new RuntimeException("NEEDS ATTENTION");
-	}
 
 	// Helper functions
 
-	public boolean isKingOnRestrictingRow(int matingEdge) {
-
-		if (!getPinAgainstColumn()) {
-
-			int rowsBetweenKings = getTargetKingRow() - getPlayerKingRow();
-
-			if (matingEdge == 0) {
-				if (rowsBetweenKings == -2) {
-					return true;
-				}
-			} else if (matingEdge == 7) {
-				if (rowsBetweenKings == 2) {
-					return true;
-				}
-			}
-		} else if (getPinAgainstColumn()) {
-			// same as above but get columns instead of rows
-		}
-		return false;
-	}
 
 	public boolean waitingMoveRequired() { // if it is whites move and this returns true, a rook move must be made
 

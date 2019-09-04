@@ -29,7 +29,7 @@ public abstract class Move {
 		return movedPiece;
 	}
 
-	public abstract Board executeMoveAndBuildBoard(); // This method returns a board modified depending on the move
+	public abstract Board executeMoveAndBuildBoard(); // Method inspired by Afghani, A. @ https://github.com/amir650/BlackWidow-Chess/blob/master/src/com/chess/engine/classic/board/Move.java
 
 	public static final class NonAttackingMove extends Move {
 

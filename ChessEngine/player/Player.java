@@ -91,39 +91,39 @@ public abstract class Player {
 		return this.legalMovesInPosition.contains(move);
 	}
 
-	public BoardTransition makeHalfMove(Move halfMove) { // Possibly move this method?
-
-		if (!(verifyLegalMove(halfMove))) {
-			System.out.println("The method 'makeHalfMove' was just passed an illegal move!");
-			return new BoardTransition(this.board, this.board, halfMove);
-		}
-
-		final Board newBoard = halfMove.executeMoveAndBuildBoard();
-
-		// Below List declaration is hard to read. Attacks on tile for the player NEXT
-		// TO MOVE on the NEW board, and second argument is the potential position of
-		// the current players king after the move.
-		final List<Move> movesThatPutKingInCheck = attacksOnTile(newBoard.getCurrentPlayer().getLegalMovesInPosition(),
-				newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getPlayerKing().getPiecePosition());
-
-		if (!(movesThatPutKingInCheck.isEmpty())) { // Potentially inefficient way to check for check?
-
-			// System.out.println("Move would put king in check!"); // Uncomment to
-			// highlight inefficiency
-
-			return new BoardTransition(this.board, this.board, halfMove);
-		}
-
-		if (newBoard.getCurrentPlayer().isCheckMate()) { // Tidy this if/else if up
-
-			// TODO Game over?
-
-		} else if (newBoard.getCurrentPlayer().isStaleMate()) {
-			System.out.println("Game is over due to stalemate.");
-			// TODO do this later
-		}
-		return new BoardTransition(this.board, newBoard, halfMove);
-	}
+//	public BoardTransition makeHalfMove(Move halfMove) { // Possibly move this method?
+//
+//		if (!(verifyLegalMove(halfMove))) {
+//			System.out.println("The method 'makeHalfMove' was just passed an illegal move!");
+//			return new BoardTransition(this.board, this.board, halfMove);
+//		}
+//
+//		final Board newBoard = halfMove.executeMoveAndBuildBoard();
+//
+//		// Below List declaration is hard to read. Attacks on tile for the player NEXT
+//		// TO MOVE on the NEW board, and second argument is the potential position of
+//		// the current players king after the move.
+//		final List<Move> movesThatPutKingInCheck = attacksOnTile(newBoard.getCurrentPlayer().getLegalMovesInPosition(),
+//				newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getPlayerKing().getPiecePosition());
+//
+//		if (!(movesThatPutKingInCheck.isEmpty())) { // Potentially inefficient way to check for check?
+//
+//			// System.out.println("Move would put king in check!"); // Uncomment to
+//			// highlight inefficiency
+//
+//			return new BoardTransition(this.board, this.board, halfMove);
+//		}
+//
+//		if (newBoard.getCurrentPlayer().isCheckMate()) { // Tidy this if/else if up
+//
+//			// TODO Game over?
+//
+//		} else if (newBoard.getCurrentPlayer().isStaleMate()) {
+//			System.out.println("Game is over due to stalemate.");
+//			// TODO do this later
+//		}
+//		return new BoardTransition(this.board, newBoard, halfMove);
+//	}
 
 	public boolean isCheckMate() {
 		if (!isNotInCheck && !(playerHasLegalMoves(this.legalMovesInPosition))) {

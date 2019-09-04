@@ -76,7 +76,7 @@ public class KPKSolver extends EndgameSolver {
 		}
 	}
 
-	public int calculateKingStepsToDefense(int kingColumn, int kingRow, int desiredDefendedTile) {
+	public int calculateKingStepsToDefendTile(int kingColumn, int kingRow, int desiredDefendedTile) {
 
 		int[] vectorsFromDesiredTile = { -9, -8, -7, -1, 1, 7, 8, 9 };
 
@@ -139,7 +139,7 @@ public class KPKSolver extends EndgameSolver {
 			this.targetKingStepsToAttack = calculateAmountOfEfficientDiagonalMoves(getTargetKingColumn(),
 					getTargetKingRow(), getPawn().getPiecePosition());
 
-			this.playerKingStepsToDefense = calculateKingStepsToDefense(getPlayerKingColumn(), getPlayerKingRow(),
+			this.playerKingStepsToDefense = calculateKingStepsToDefendTile(getPlayerKingColumn(), getPlayerKingRow(),
 					getPawn().getPiecePosition());
 
 		}
@@ -151,6 +151,8 @@ public class KPKSolver extends EndgameSolver {
 
 			if (getTargetKingStepsToPromotionTile() > getPawnStepsToPromotion()) {
 				return makePawnMove();
+			} else if (playerKingIsOnTargetRow()) {
+				return makePawnMove(); // NEEDS REFACTORING
 			} else if (getPlayerKing().getDefendedPieces().contains(getPawn())) {
 				if (playerKingIsOnTargetRow()) {
 					// If the king defending the pawn AND on the row before the promotional rank,
@@ -159,6 +161,16 @@ public class KPKSolver extends EndgameSolver {
 				} else if (kingIsOnPawnRow()) {
 					Move move = attemptToMoveKingUp();
 					if (!(move == null)) {
+						if (moveWouldLeadToStalemate(move)) {
+							if (pawnWouldBeSafeAfterMove()) {
+								if (moveWouldLeadToStalemate(makePawnMove())) {
+									return kingWaitingMove();
+								}
+								return makePawnMove();
+							} else {
+								throw new RuntimeException("Bad things happening.");
+							}
+						}
 						return move;
 					} else if (pawnWouldBeSafeAfterMove()) {
 						return makePawnMove();
@@ -172,6 +184,7 @@ public class KPKSolver extends EndgameSolver {
 			} else {
 				return moveKingTowardDefense();
 			}
+			// throw new RuntimeException("Bad things happening.");
 		}
 
 		private Move attemptToMoveKingUp() {
@@ -312,13 +325,23 @@ public class KPKSolver extends EndgameSolver {
 		}
 
 		public boolean cannotWinScenario() {
+
 			if (pawnIsOnEdge(getPawn().getPiecePosition())) {
-				// check if targetking is closer to promotionTile than playerKing
+				if (calculateKingStepsToDefendTile(getPlayerKingColumn(), getPlayerKingColumn(),
+						getPromotionTileCoordinate()) > calculateKingStepsToDefendTile(getTargetKingColumn(),
+								getTargetKingColumn(), getPromotionTileCoordinate())) {
+					// Rook pawn
+					return true;
+				} else if (false/* Whites king is in front of the pawn and shut in by the black king */) {
+					// implement asap
+				}
 			} else if (playerKingStepsToDefense > targetKingStepsToAttack) {
+				// if the pawn can be captured before the kin can defend it
+				return true;
+			} else if (getTargetKing().getPiecePosition() == getPawn().getPiecePosition() - 8
+					|| getTargetKing().getPiecePosition() == getPawn().getPiecePosition() - 16) {
 				return true;
 			}
-
-			// if either of the above are true, offer draw
 
 			return false;
 		}
@@ -400,55 +423,116 @@ public class KPKSolver extends EndgameSolver {
 
 		final Piece playerQueen;
 
-		final boolean targetKingOnEdge;
+		final boolean targetKingOnMatingRow;
 
 		public QueenSolver(Board board) {
 			super(board);
 			this.playerQueen = getLonePiece();
 
-			this.targetKingOnEdge = targetKingIsOnEdge(getTargetKing().getPiecePosition());
+			this.targetKingOnMatingRow = getTargetKingRow() == getMatingEdge();
 		}
 
 		public Move generateKingQueenMove() {
-			// Check for stalemate before making everymove
-
-			if (targetKingOnEdge) {
-				return moveQueenToEdgeRestriction();
-
+			if (getPlayerKing().getPiecePosition() == 16) {
+				System.out.println();
 			}
-			// 1. If yes, figure out which edge it is restricted to - after which you move
-			// the queen to that edge +1
-			// If queen is restricting to edge, move king to the edge + 2 and move it into
-			// checkmate position
-			// if in checkmate position, check all queenmoves that would result in checkmate
 
-			// if the targetking is not on the edge, do move that restricts the king :S
+			if (isTargetKingOnMatingRow()) {
+				if (isQueenPinningTargetKingAgainstMatingRow()) {
+					if (isKingOnRestrictingRow(getMatingEdge())) {
+						if (isCheckingPositionPosition()) {
+							return findCheckmate();
+						} else {
+							return makeKingRestrictingMove();
+						}
+					} else {
+						return moveKingTowardRestrictingRow();
+					}
+				} else {
+					return moveQueenToEdgeRestriction();
+				}
 
-			return null;
+			} else {
+				return moveQueenToEdgeRestriction();
+			}
+
+			// throw new RuntimeException("Broken here");
+		}
+
+		private Move findCheckmate() {
+			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) {
+				Board checkmateBoard = move.executeMoveAndBuildBoard();
+
+				if (checkmateBoard.getCurrentPlayer().isCheckMate()) {
+					return move;
+				}
+			}
+			throw new RuntimeException("Unexpected problem here");
 		}
 
 		public Move moveQueenToEdgeRestriction() {
-			Move restrictionMove = null;
+			Move restrictingMove = null;
+			int targetKingPosition = getTargetKing().getPiecePosition();
+			int[] desiredCoordinates = { 6, 10 };
 
-			if (getTargetKingColumn() == 0) {
-				// move queen to column 1
-			} else if (getTargetKingColumn() == 7) {
-				// move queen to column 6
-			} else if (getTargetKingRow() == 0) {
-				// move queen to row 1
-			} else if (getTargetKingRow() == 7) {
-				// move queen to row 7
+			if (getMatingEdge() == 0) {
+				// don't change
+			} else if (getMatingEdge() == 7) {
+				desiredCoordinates[0] = -desiredCoordinates[0];
+				desiredCoordinates[1] = -desiredCoordinates[1];
 			}
 
-			if (pieceNotAttackedAfterMove(restrictionMove)) {
-				return restrictionMove;
+			for (int i : desiredCoordinates) {
+
+				if ((getTargetKingColumn() == 0 || getTargetKingColumn() == 1) && i == 6 || i == -10) {
+					continue;
+				} else if ((getTargetKingColumn() == 6 || getTargetKingColumn() == 7) && i == -6
+						|| getTargetKingColumn() == 10) {
+					continue;
+				}
+				restrictingMove = traverseQueenMoves(targetKingPosition + i);
+				if (restrictingMove == null) {
+					continue;
+				} else {
+					if (pieceNotAttackedAfterMove(restrictingMove)) {
+						return restrictingMove;
+					} else {
+						continue;
+					}
+				}
 			}
 
+			if (restrictingMove == null) {
+				return makeQueenSafetyMove();
+			}
 			throw new RuntimeException("Problem moving the queen to restriction!");
 		}
 
-		public boolean couldBeCheckmatePosition() { // if it is whites move and this returns true, check queen moves for
-			// checkmate
+		public Move makeQueenSafetyMove() {
+			int direction = 1337;
+
+			if (getMatingEdge() == 0) {
+				direction = 1;
+			} else {
+				direction = -1;
+			}
+			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) {
+				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == getTargetKingRow() + direction) {
+					Board newBoard = move.executeMoveAndBuildBoard();
+					Piece newQueen = findLonePiece(
+							newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getActivePieces());
+					if (pieceNotAttackedAfterMove(move)
+							|| BoardUtility.isPieceDefended(newQueen, newBoard, newQueen.getPieceAlliance())) {
+						return move;
+					}
+				}
+			}
+
+			throw new RuntimeException("This method needs attention");
+		}
+
+		public boolean isCheckingPositionPosition() { // if it is whites move and this returns true, then search queen
+														// moves for good checking mvoes
 			int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
 
 			if (getPinAgainstColumn()) {
@@ -467,17 +551,31 @@ public class KPKSolver extends EndgameSolver {
 			return false;
 		}
 
-		public boolean moveWouldLeadToStalemate(Move madeMove) {
-			Board newBoard = madeMove.executeMoveAndBuildBoard();
-
-			if (newBoard.getCurrentPlayer().isStaleMate()) {
-				return true;
+		public Move traverseQueenMoves(int desiredDestinationCoordinate) {
+			for (Move move : getPlayerQueen().calculateLegalMoves(this.board)) {
+				if (move.getDestinationTileCoordinate() == desiredDestinationCoordinate) {
+					return move;
+				}
 			}
-			return false;
+			// throw new RuntimeException("No move like that exists! This method needs
+			// attention");
+			return null;
 		}
 
-		public boolean targetKingIsOnEdge(int tileCoordinate) {
-			return BoardUtility.isPieceOnEdge(tileCoordinate);
+		public boolean isQueenPinningTargetKingAgainstMatingRow() {
+			if (getMatingEdge() == 0) {
+				return BoardUtility.calculateRow(getPlayerQueen().getPiecePosition()) == 1;
+			} else {
+				return BoardUtility.calculateRow(getPlayerQueen().getPiecePosition()) == 6;
+			}
+		}
+
+		public Piece getPlayerQueen() {
+			return playerQueen;
+		}
+
+		public boolean isTargetKingOnMatingRow() {
+			return targetKingOnMatingRow;
 		}
 
 	}

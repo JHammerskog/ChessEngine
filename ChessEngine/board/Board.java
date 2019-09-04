@@ -272,10 +272,10 @@ public class Board {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(19, Alliance.BLACK));
+		b.setPiece(new King(16, Alliance.BLACK));
 
-		b.setPiece(new King(37, Alliance.WHITE));
-		b.setPiece(new Rook(31, Alliance.WHITE));
+		b.setPiece(new King(1, Alliance.WHITE));
+		b.setPiece(new Rook(45, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -298,10 +298,10 @@ public class Board {
 
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(22, Alliance.BLACK));
+		b.setPiece(new King(21, Alliance.BLACK));
 
-		b.setPiece(new King(37, Alliance.WHITE));
-		b.setPiece(new Pawn(30, Alliance.WHITE));
+		b.setPiece(new King(36, Alliance.WHITE));
+		b.setPiece(new Pawn(29, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -313,8 +313,8 @@ public class Board {
 
 		b.setPiece(new King(3, Alliance.BLACK));
 
-		b.setPiece(new King(17, Alliance.WHITE));
-		b.setPiece(new Pawn(18, Alliance.WHITE));
+		b.setPiece(new King(8, Alliance.WHITE));
+		b.setPiece(new Pawn(17, Alliance.WHITE));
 
 		return b.build();
 	}
