@@ -36,6 +36,9 @@ public abstract class Player {
 			this.isNotInCheck = attacksOnTile(opponentMovesInPosition, playerKing.getPiecePosition()).isEmpty();
 		} // Without this check, the "clear board" feature of the GUI causes a null
 			// pointer exception
+		if(!isNotInCheck) {
+			System.out.println(); 
+		}
 
 	}
 

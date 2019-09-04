@@ -80,5 +80,15 @@ public class Bishop extends Piece {
 	public Piece movePiece(Move move) {
 		return new Bishop(move.getDestinationTileCoordinate(), move.getMovedPiece().getPieceAlliance() );
 	}
+	@Override
+	public String toUnicode() {
+		String unicode;
+		if (this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265D";
+		} else {
+			unicode = "\u2657";
+		}
+		return unicode;
+	}
 
 }

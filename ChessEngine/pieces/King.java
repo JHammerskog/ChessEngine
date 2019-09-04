@@ -75,4 +75,15 @@ public class King extends Piece {
 		return Piece.PieceType.KING.toString();
 	}
 
+	@Override
+	public String toUnicode() {
+		String unicode;
+		if(this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265A";
+		} else {
+			unicode = "\u2654";
+		}
+		return unicode;
+	}
+
 }

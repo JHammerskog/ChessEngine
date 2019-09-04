@@ -81,4 +81,15 @@ public class Rook extends Piece {
 		return Piece.PieceType.ROOK.toString();
 	}
 
+	@Override
+	public String toUnicode() {
+		String unicode;
+		if (this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265C";
+		} else {
+			unicode = "\u2656";
+		}
+		return unicode;
+	}
+
 }

@@ -48,14 +48,14 @@ public class Pawn extends Piece {
 
 				}
 
-			} else if ((candidateVector == 16 || candidateVector == -16)
-					&& this.isFirstMove /* && isBlack && on 7th row || isWhite and on 2nd row */) { // make more generic
+			} else if ((candidateVector == 16 || candidateVector == -16) // Bug for black adding this depsite firstmove = false
+					&& this.isFirstMove /* && isBlack && on 7th row || isWhite and on 2nd row */) {
 				final int tileBeforeCandidate = (candidateCoordinate - candidateVector) + (candidateVector / 2);
 				if (!candidateTile.tileIsOccupied() || !board.getTile(tileBeforeCandidate).tileIsOccupied()) {
 					// Both squares in front of pawn must be unoccupied for it to be a legal move
 
 					legalMoves.add(new NonAttackingMove(board, this, candidateCoordinate));
-				}
+				} 
 			} else if ((candidateVector == 7 || candidateVector == -7)
 					&& (!(identifyColumn(this.piecePosition) == 7 && (this.getPieceAlliance() == Alliance.WHITE))
 							|| !(identifyColumn(this.piecePosition) == 0)
@@ -111,6 +111,17 @@ public class Pawn extends Piece {
 
 	public String toString() {
 		return Piece.PieceType.PAWN.toString();
+	}
+
+	@Override
+	public String toUnicode() {
+		String unicode;
+		if (this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265F";
+		} else {
+			unicode = "\u2659";
+		}
+		return unicode;
 	}
 
 }

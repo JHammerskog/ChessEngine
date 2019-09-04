@@ -110,7 +110,7 @@ public class KPKSolver extends EndgameSolver {
 		return lonePiece;
 	}
 
-	public class PawnSolver extends EndgameSolver {
+	public class PawnSolver extends KPKSolver {
 
 		private final int pawnStepsToPromotion;
 		private final int promotionTileCoordinate;
@@ -301,6 +301,40 @@ public class KPKSolver extends EndgameSolver {
 			throw new RuntimeException("King cannot make a move!");
 		}
 
+		public boolean winningCaseOne() {
+			// very specific position which is an exception to the rule when the king is in front of the enemy pawn
+			int distanceBetweenPawnAndTargetKing = getTargetKing().getPiecePosition() - getPawn().getPiecePosition();
+
+			if (getBoard().getCurrentPlayer().getAlliance() == Alliance.WHITE) {
+				if (getPlayerKingRow() == 2 && !(getPlayerKing().getDefendedPieces().isEmpty())) {
+					if (distanceBetweenPawnAndTargetKing == -16) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public boolean winningCaseTwo() {
+			
+			int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
+			if(getBoard().getCurrentPlayer().getAlliance() == Alliance.WHITE) {
+				if(getPlayerKingRow() == 2 && (getPawn().getPiecePosition() - 8 == getPlayerKing().getPiecePosition())) {
+					if(distanceBetweenKings == -15 || distanceBetweenKings == -17) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public boolean winningCaseThree() {
+			// Winning case three involves a situation where the king can move into
+			// opposition with the enemy king in front of the pawn. Unfortunately, there was
+			// no time to implement this in this iteration.
+			return false;
+		}
+
 		public boolean kingIsOnPawnRow() {
 			return getPlayerKingRow() == BoardUtility.calculateRow(getPawn().getPiecePosition());
 		}
@@ -326,20 +360,28 @@ public class KPKSolver extends EndgameSolver {
 
 		public boolean cannotWinScenario() {
 
+			if (winningCaseOne() || winningCaseTwo()) {
+				return false;
+			}
+
 			if (pawnIsOnEdge(getPawn().getPiecePosition())) {
 				if (calculateKingStepsToDefendTile(getPlayerKingColumn(), getPlayerKingColumn(),
 						getPromotionTileCoordinate()) > calculateKingStepsToDefendTile(getTargetKingColumn(),
-								getTargetKingColumn(), getPromotionTileCoordinate())) {
-					// Rook pawn
+								getTargetKingColumn(), getPromotionTileCoordinate())
+						&& (getTargetKingStepsToPromotionTile() <= getPawnStepsToPromotion())) {
+					// Rook pawn that cannot promote for free or be defended on time
 					return true;
 				} else if (false/* Whites king is in front of the pawn and shut in by the black king */) {
 					// implement asap
 				}
-			} else if (playerKingStepsToDefense > targetKingStepsToAttack) {
-				// if the pawn can be captured before the kin can defend it
+			} else if (getPlayerKingStepsToDefense() > getTargetKingStepsToAttack()) {
+				// if the pawn can be captured before the king can defend it
 				return true;
-			} else if (getTargetKing().getPiecePosition() == getPawn().getPiecePosition() - 8
-					|| getTargetKing().getPiecePosition() == getPawn().getPiecePosition() - 16) {
+			} else if ((getTargetKing().getPiecePosition() == getPawn().getPiecePosition() - 8) || (getTargetKing()
+					.getPiecePosition() == getPawn().getPiecePosition() - 16)
+					&& !(getPlayerKing().getPiecePosition() == getTargetKing().getPiecePosition() + 15
+							|| !(getPlayerKing().getPiecePosition() == getTargetKing().getPiecePosition() + 17))) {
+				// Only true for white to move
 				return true;
 			}
 
@@ -433,9 +475,6 @@ public class KPKSolver extends EndgameSolver {
 		}
 
 		public Move generateKingQueenMove() {
-			if (getPlayerKing().getPiecePosition() == 16) {
-				System.out.println();
-			}
 
 			if (isTargetKingOnMatingRow()) {
 				if (isQueenPinningTargetKingAgainstMatingRow()) {
@@ -449,7 +488,12 @@ public class KPKSolver extends EndgameSolver {
 						return moveKingTowardRestrictingRow();
 					}
 				} else {
-					return moveQueenToEdgeRestriction();
+					if (moveWouldLeadToStalemate(moveQueenToEdgeRestriction())) {
+						return makeQueenSafetyMove();
+					} else {
+						return moveQueenToEdgeRestriction();
+					}
+
 				}
 
 			} else {
@@ -484,10 +528,9 @@ public class KPKSolver extends EndgameSolver {
 
 			for (int i : desiredCoordinates) {
 
-				if ((getTargetKingColumn() == 0 || getTargetKingColumn() == 1) && i == 6 || i == -10) {
+				if ((getTargetKingColumn() == 0 || getTargetKingColumn() == 1) && (i == 6 || i == -10)) {
 					continue;
-				} else if ((getTargetKingColumn() == 6 || getTargetKingColumn() == 7) && i == -6
-						|| getTargetKingColumn() == 10) {
+				} else if ((getTargetKingColumn() == 6 || getTargetKingColumn() == 7) && (i == -6 || i == 10)) {
 					continue;
 				}
 				restrictingMove = traverseQueenMoves(targetKingPosition + i);
@@ -516,15 +559,34 @@ public class KPKSolver extends EndgameSolver {
 			} else {
 				direction = -1;
 			}
-			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) {
+			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) { // good move
 				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == getTargetKingRow() + direction) {
 					Board newBoard = move.executeMoveAndBuildBoard();
 					Piece newQueen = findLonePiece(
 							newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getActivePieces());
 					if (pieceNotAttackedAfterMove(move)
 							|| BoardUtility.isPieceDefended(newQueen, newBoard, newQueen.getPieceAlliance())) {
+						if (moveWouldLeadToStalemate(move)) {
+							continue;
+						} else {
+							return move;
+						}
+					}
+				}
+			}
+			// move to not crash the program
+			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) {
+				Board newBoard = move.executeMoveAndBuildBoard();
+				Piece newQueen = findLonePiece(
+						newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getActivePieces());
+				if (pieceNotAttackedAfterMove(move)
+						|| BoardUtility.isPieceDefended(newQueen, newBoard, newQueen.getPieceAlliance())) {
+					if (moveWouldLeadToStalemate(move)) {
+						continue;
+					} else {
 						return move;
 					}
+
 				}
 			}
 

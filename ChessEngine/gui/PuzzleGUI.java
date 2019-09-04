@@ -2,20 +2,15 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,17 +32,7 @@ import board.Tile;
 import pieces.Piece;
 
 /***
- * This class is a simple GUI which will allow a user to play against the puzzle
- * solvers.
- * 
- * TODO: 1. Add a FEN-reader feature
- * 
- * 2. Highlight legal moves?
- * 
- * 3. Add observer pattern to GUI so user doesn't have to click "make AI" move
- * themselves? Would work best with SwingWorker threads (Time)
- * 
- * 4. Some sort of instruction is sorely needed
+ *
  * 
  ***/
 
@@ -178,22 +163,27 @@ public class PuzzleGUI extends JFrame {
 				+ "\nwith some neat heuristics which generate moves very quickly on low-level hardware."
 				+ "\n\nThe role of you, the user: \n"
 				+ "\nIn the current iteration, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames."
-				+ "\nYou as the user can use this user interface to test the developed heuristics.");
+				+ "\nYou as the user can use this user interface to test the developed heuristics."
+				+ "\nIn the current iteration, the heuristic only works if the side with two pieces is white."
+				+ "\nIn order to test it, use the heuristic buttons at the bottom to generate a move for white."
+				+ "\nThe heuristic will try to achieve checkmate, so your job is just to survive.");
 
 		// ADD HOW TO SETUP A BOARD WHEN DONE
 	}
 
 	private void displayMoveInstructions() {
 		popUpDialog("How to make a manual move:\n"
-				+ "Simply click on a tile with a piece on it, and then click on the tile you want that piece to go."
+				+ "\nClick on a tile with a piece on it, and then click on the tile you want that piece to go."
 				+ "\nIf the move you are attempting to make is legal, the tile you clicked will be highlighted in a green colour."
+				+ "\nIf you click on a piece, that piece's legal moves will be highlighted in red."
 				+ "\nIf nothing happens - its probably the other players turn!"
-				+ "\nIf you are wondering which piece to move, there is an indicator just above the board and underneath the menubar."
-				+ "\n\nHow to make a 'heuristic move':\n"
+				+ "\nIf you are wondering which piece to move, there is an indicator who's turn it is"
+				+ "\njust above the board and underneath the menubar."
+				+ "\nIn order to cancel a manual move, simply right click!" + "\n\nHow to make a 'heuristic move':\n"
 				+ "\nAt the bottom of this frame, there are some buttons which enable you to generate a heuristic move."
 				+ "\nAs the user, you are able to move as both white and black if you wish. "
-				+ "\nHowever, if you would like to test one of the developed heuristics simply click on the button that corresponds to the endgame puzzle you would like to solve."
-				+ "\n\nMenus: \n"
+				+ "\nHowever, if you would like to test one of the developed heuristics simply click on the button that"
+				+ "\n corresponds to the endgame puzzle you would like to solve." + "\n\nMenus: \n"
 				+ "\nIf at any point you want to change the game settings, or you would like to view this message again,"
 				+ "\nsimply navigate to the menu bar at the top.");
 
@@ -275,7 +265,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.queenBoard());
+				setCurrentChessBoard(Board.KPKBoardOne());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -321,19 +311,23 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				KRKSolver k = new KRKSolver(getCurrentChessBoard());
-				Move AIMove = k.generateRestrictingMove(getCurrentChessBoard());
+				try {
+					KRKSolver k = new KRKSolver(getCurrentChessBoard());
+					Move AIMove = k.generateRestrictingMove(getCurrentChessBoard());
 
-				Board newBoard = AIMove.executeMoveAndBuildBoard();
-				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
-					setCurrentChessBoard(newBoard);
-					getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
-				}
-				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
-					popUpDialog("Checkmate! Please start a new game.");
-				}
-				updateTurnLabel(turnLabel, newBoard);
+					Board newBoard = AIMove.executeMoveAndBuildBoard();
+					if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
+						setCurrentChessBoard(newBoard);
+						getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+					}
+					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+						popUpDialog("Checkmate! Please start a new game.");
+					}
 
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+					popUpDialog("This heuristic only works for the side with both a king and a rook!");
+				}
 			}
 
 		});
@@ -342,23 +336,28 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				KPKSolver k = new KPKSolver(getCurrentChessBoard());
-				Move AIMove = k.generateKPKMove(getCurrentChessBoard());
-				
-				if(AIMove == null) {
-					popUpDialog("The heuristic has determined that this position will lead to a stalemate! Please choose a new position.");
-				}
+				try {
+					KPKSolver k = new KPKSolver(getCurrentChessBoard());
+					Move AIMove = k.generateKPKMove(getCurrentChessBoard());
 
-				Board newBoard = AIMove.executeMoveAndBuildBoard();
-				if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
-					setCurrentChessBoard(newBoard);
-					getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
-				}
-				if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
-					popUpDialog("Checkmate! Please start a new game.");
-				}
+					if (AIMove == null) {
+						popUpDialog(
+								"The heuristic has determined that this position will lead to a stalemate! Please choose a new position.");
+					}
 
-				updateTurnLabel(turnLabel, newBoard);
+					Board newBoard = AIMove.executeMoveAndBuildBoard();
+					if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck() == true) {
+						setCurrentChessBoard(newBoard);
+						getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+					}
+					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+						popUpDialog("Checkmate! Please start a new game.");
+					}
+
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+					popUpDialog("This heuristic only works for the side with a king and a pawn/queen!");
+				}
 
 			}
 
@@ -398,12 +397,10 @@ public class PuzzleGUI extends JFrame {
 				this.add(singleTile);
 			}
 
-			Dimension test = new Dimension(300, 300); // Setting the size is not working
-			this.setPreferredSize(test);
-
 		}
 
 		public void reDrawBoardAfterMove(Board board) {
+			updateTurnLabel(getTurnLabel(), board);
 			// Only needs to be passed a board for reDrawTileAfterMove()
 			for (SingleTilePanel singleTile : getChessBoardPanel()) {
 				singleTile.reDrawTileAfterMove(board);
@@ -446,11 +443,21 @@ public class PuzzleGUI extends JFrame {
 							setBorder(new LineBorder(Color.GREEN));
 							setOriginTile(getCurrentChessBoard().getTile(getTileCoordinate()));
 							setMovedPiece(getCurrentChessBoard().getTile(getTileCoordinate()).getPiece());
+							try {
+								highlightLegalMoves(
+										getCurrentChessBoard().getTile(getTileCoordinate()).getPiece()
+												.calculateLegalMoves(getCurrentChessBoard()),
+										boardPanel.getChessBoardPanel());
+
+							} catch (NullPointerException e) {
+								//e.printStackTrace();
+								
+							}
+
 							if (getMovedPiece() == null || !(getMovedPiece()
 									.getPieceAlliance() == getCurrentChessBoard().getCurrentPlayer().getAlliance())) {
 								// This only happens if there is no piece on the clicked tile
-								returnTileBorder(
-										getChessArea().getChessBoardPanel().get(getOriginTile().getTileCoordinate()));
+								restoreTileBorders(boardPanel.getChessBoardPanel());
 								setOriginTile(null);
 
 							}
@@ -464,22 +471,17 @@ public class PuzzleGUI extends JFrame {
 							if (getCurrentChessBoard().getCurrentPlayer().getLegalMovesInPosition().contains(move)) {
 
 								Board newBoard = move.executeMoveAndBuildBoard();
-								// If you get far enough to implement undo-move features, use the below line of
-								// code
-								// BoardTransition newBoardPosition = new
-								// BoardTransition(getCurrentChessBoard(), newBoard, move);
+
 								if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance())
 										.getIsNotInCheck() == true) {
 									setCurrentChessBoard(newBoard);
 									getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
-									// updateTurnLabel(turnLabelPanel, newBoard);
-									updateTurnLabel(turnLabel, newBoard);
 								}
 
 							}
 							// happens after every mouse event
-							returnTileBorder(
-									getChessArea().getChessBoardPanel().get(getOriginTile().getTileCoordinate()));
+
+							restoreTileBorders(boardPanel.getChessBoardPanel());
 							setMovedPiece(null);
 							setOriginTile(null);
 							setDestinationTile(null);
@@ -494,7 +496,8 @@ public class PuzzleGUI extends JFrame {
 						// Right clicking on the board means that you remove all previous tile
 						// selections. This is a quality of life feature which is far from functional,
 						// but improves quality of life with insane amounts (from personal experience)
-						returnTileBorder(getChessArea().getChessBoardPanel().get(getOriginTile().getTileCoordinate()));
+
+						restoreTileBorders(boardPanel.getChessBoardPanel());
 						setMovedPiece(null);
 						setOriginTile(null);
 						setDestinationTile(null);
@@ -541,8 +544,26 @@ public class PuzzleGUI extends JFrame {
 
 		// Helper methods for tiles
 
-		public void returnTileBorder(SingleTilePanel highlightedTilePanel) {
-			highlightedTilePanel.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		public void highlightTileForMove(SingleTilePanel highlightedTilePanel) {
+			highlightedTilePanel.setBorder(new LineBorder(Color.RED));
+		}
+
+		public void highlightLegalMoves(List<Move> legalMovesForPiece, List<SingleTilePanel> chessBoardPanels) {
+			for (Move move : legalMovesForPiece) {
+				Board potentialBoard =move.executeMoveAndBuildBoard();	
+				if((potentialBoard.getOpponent(potentialBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck())) {
+					int highlightCoordinate = move.getDestinationTileCoordinate();
+					highlightTileForMove(chessBoardPanels.get(highlightCoordinate));
+
+				}
+			
+			}
+		}
+
+		public void restoreTileBorders(List<SingleTilePanel> chessBoardPanels) {
+			for (SingleTilePanel singleTile : chessBoardPanels) {
+				singleTile.setBorder(new LineBorder(Color.LIGHT_GRAY));
+			}
 		}
 
 		public void reDrawTileAfterMove(Board board) {
@@ -560,45 +581,13 @@ public class PuzzleGUI extends JFrame {
 		public void setPieceOnTile(Board board) {
 			// exception handling here?
 			if (board.getTile(getTileCoordinate()).tileIsOccupied()) {
-				String pieceOnTile = board.getTile(getTileCoordinate()).toString();
-				add(new JLabel(pieceOnTile));
+				String pieceOnTile = board.getTile(getTileCoordinate()).getPiece().toUnicode();
+				JLabel pieceLabel = new JLabel(pieceOnTile);
+				pieceLabel.setFont(getFont().deriveFont(48f));
+				add(pieceLabel);
+
 			}
 
-			// Find nicer way to represent pieces than FEN notation
-
-		}
-
-		public void setPieceImageOnTile(Board board) { // This method will replace setPieceOnTile()
-			// removeAll needed here?
-
-			if (board.getTile(getTileCoordinate()).tileIsOccupied()) {
-				Alliance pieceAlliance = board.getTile(getTileCoordinate()).getPiece().getPieceAlliance();
-
-				String pathToImageDirectory = ""; // Set this when you add piece images
-				pathToImageDirectory += addAllianceToDirectoryPath(pieceAlliance);
-				BufferedImage pieceImage = null;
-
-				try {
-					pieceImage = ImageIO.read(new File(
-							pathToImageDirectory + board.getTile(getTileCoordinate()).getPiece().toString() + ".png"));
-					// update this when you add image folder
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					add(new JLabel(new ImageIcon(pieceImage)));
-				}
-			}
-
-		}
-
-		public String addAllianceToDirectoryPath(Alliance alliance) {
-			String pathString = "/";
-			if (alliance == Alliance.WHITE) {
-				pathString += "WhitePieces/";
-			} else if (alliance == Alliance.BLACK) {
-				pathString += "BlackPieces/";
-			}
-			return pathString;
 		}
 
 		public Color setTileColour() {
@@ -660,6 +649,10 @@ public class PuzzleGUI extends JFrame {
 
 	public void setDestinationTile(Tile destinationTile) {
 		this.destinationTile = destinationTile;
+	}
+
+	public JLabel getTurnLabel() {
+		return turnLabel;
 	}
 
 }

@@ -92,5 +92,16 @@ public class Knight extends Piece {
 	public String toString() {
 		return Piece.PieceType.KNIGHT.toString();
 	}
+	
+	@Override
+	public String toUnicode() {
+		String unicode;
+		if (this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265E";
+		} else {
+			unicode = "\u2658";
+		}
+		return unicode;
+	}
 
 }

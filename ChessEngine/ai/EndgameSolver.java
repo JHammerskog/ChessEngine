@@ -132,6 +132,24 @@ public class EndgameSolver {
 		throw new RuntimeException("NEEDS ATTENTION");
 	}
 	
+	public boolean kingsAreInOpposition() { // Works and needed
+
+		int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
+
+		if (getPinAgainstColumn()) { // If pin is against column
+			if (distanceBetweenKings == -2 || distanceBetweenKings == 2) {
+				return true;
+			}
+
+		} else if (!getPinAgainstColumn()) { // If pin is against Row
+			if (distanceBetweenKings == -16 || distanceBetweenKings == 16) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+	
 	public boolean isKingOnRestrictingRow(int matingEdge) {
 
 		if (!getPinAgainstColumn()) {

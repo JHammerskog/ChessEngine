@@ -17,7 +17,7 @@ public abstract class Piece {
 
 	protected final int piecePosition;
 	protected final Alliance playerColour;
-	protected boolean isFirstMove; // Initially set to true, for pawns and castling
+	protected boolean isFirstMove = false; // Not included in this iteration
 	protected PieceType pieceType;
 	protected List<Piece> defendedPieces = new ArrayList<Piece>();
 
@@ -50,6 +50,8 @@ public abstract class Piece {
 	}
 
 	public abstract Piece movePiece(Move move);
+	
+	public abstract String toUnicode();
 
 	public enum PieceType {
 

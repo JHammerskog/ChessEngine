@@ -87,5 +87,14 @@ public class Queen extends Piece {
 	public String toString() {
 		return Piece.PieceType.QUEEN.toString();
 	}
+	public String toUnicode() {
+		String unicode;
+		if(this.getPieceAlliance() == Alliance.BLACK) {
+			unicode = "\u265B";
+		} else {
+			unicode = "\u2655";
+		}
+		return unicode;
+	}
 
 }

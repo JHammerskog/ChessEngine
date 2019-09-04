@@ -33,20 +33,6 @@ public class KRKSolver extends EndgameSolver {
 	 * comments.
 	 ***/
 
-	/*
-	 * Known Bugs/problems:
-	 * 
-	 * 1. If the playerKing is closer to the matingEdge than the targetKing, the
-	 * targetKing can block the playerKing from getting to the desired
-	 * restriction-row. This can be solved in two ways: 1) Through improving how the
-	 * king gets to the restricting row (by not just giving it a move, but telling
-	 * it to go around the restriction), and 2) through improving the
-	 * generateBestMatingEdge() function. However, even with a better function,
-	 * there still needs to be a "moveAroundrestriction()" function implemented for
-	 * the king.
-	 * 
-	 */
-
 	private final Piece loneRook;
 
 	private final int currentLoneRookRow;
@@ -164,7 +150,7 @@ public class KRKSolver extends EndgameSolver {
 
 		if (!getPinAgainstColumn()) {
 
-			for (Move move : this.loneRook.calculateLegalMoves(getBoard())) {
+			for (Move move : getRook().calculateLegalMoves(getBoard())) {
 				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == getRookRow()) { // same row
 					if (BoardUtility.calculateColumn(move.getDestinationTileCoordinate()) == 0
 							|| BoardUtility.calculateColumn(move.getDestinationTileCoordinate()) == 7) { // edge of
@@ -179,7 +165,7 @@ public class KRKSolver extends EndgameSolver {
 			}
 
 		} else {
-			for (Move move : this.loneRook.calculateLegalMoves(getBoard())) {
+			for (Move move : getRook().calculateLegalMoves(getBoard())) {
 				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == 0
 						|| BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == 7) {
 					safetyMove = move;
@@ -278,10 +264,7 @@ public class KRKSolver extends EndgameSolver {
 
 	// KING LOGIC This could also be moved to the endgame solver?
 
-
-
 	// Helper functions
-
 
 	public boolean waitingMoveRequired() { // if it is whites move and this returns true, a rook move must be made
 
@@ -296,25 +279,6 @@ public class KRKSolver extends EndgameSolver {
 		} else if (!getPinAgainstColumn()) {
 			if (distanceBetweenKings == -15 || distanceBetweenKings == -17 || distanceBetweenKings == 15
 					|| distanceBetweenKings == 17) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-
-	public boolean kingsAreInOpposition() { // Works and needed
-
-		int playerKingPosition = this.board.getCurrentPlayer().getPlayerKing().getPiecePosition();
-		int distanceBetweenKings = getTargetKing().getPiecePosition() - playerKingPosition;
-
-		if (getPinAgainstColumn()) { // If pin is against column
-			if (distanceBetweenKings == -2 || distanceBetweenKings == 2) {
-				return true;
-			}
-
-		} else if (!getPinAgainstColumn()) { // If pin is against Row
-			if (distanceBetweenKings == -16 || distanceBetweenKings == 16) {
 				return true;
 			}
 
@@ -337,6 +301,7 @@ public class KRKSolver extends EndgameSolver {
 	public boolean getRookIsSafe() {
 		return rookIsSafe;
 	}
+
 	public Rook getRook() {
 		return (Rook) loneRook;
 	}

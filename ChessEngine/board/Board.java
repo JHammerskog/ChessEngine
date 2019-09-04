@@ -285,10 +285,10 @@ public class Board {
 
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(35, Alliance.BLACK));
+		b.setPiece(new King(3, Alliance.BLACK));
 
-		b.setPiece(new King(17, Alliance.WHITE));
-		b.setPiece(new Pawn(24, Alliance.WHITE));
+		b.setPiece(new King(18, Alliance.WHITE));
+		b.setPiece(new Pawn(19, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -298,10 +298,10 @@ public class Board {
 
 		b.setNextPlayerToMove(Alliance.WHITE);
 
-		b.setPiece(new King(21, Alliance.BLACK));
+		b.setPiece(new King(0, Alliance.BLACK));
 
-		b.setPiece(new King(36, Alliance.WHITE));
-		b.setPiece(new Pawn(29, Alliance.WHITE));
+		b.setPiece(new King(35, Alliance.WHITE));
+		b.setPiece(new Pawn(39, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -328,7 +328,21 @@ public class Board {
 		b.setPiece(new King(15, Alliance.BLACK));
 
 		b.setPiece(new King(13, Alliance.WHITE));
-		b.setPiece(new Pawn(21, Alliance.WHITE));
+		b.setPiece(new Queen(21, Alliance.WHITE));
+
+		return b.build();
+	}
+	
+	public static Board CheckmateBoard() {
+
+		final Builder b = new Builder();
+
+		b.setNextPlayerToMove(Alliance.BLACK);
+
+		b.setPiece(new King(0, Alliance.BLACK));
+
+		b.setPiece(new King(16, Alliance.WHITE));
+		b.setPiece(new Queen(3, Alliance.WHITE));
 
 		return b.build();
 	}
@@ -344,10 +358,10 @@ public class Board {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 		
-		b.setPiece(new King(8, Alliance.BLACK));
+		b.setPiece(new King(28, Alliance.BLACK));
 
-		b.setPiece(new King(24, Alliance.WHITE));
-		b.setPiece(new Queen(7, Alliance.WHITE));
+		b.setPiece(new King(14, Alliance.WHITE));
+		b.setPiece(new Queen(6, Alliance.WHITE));
 
 		return b.build();
 	}
