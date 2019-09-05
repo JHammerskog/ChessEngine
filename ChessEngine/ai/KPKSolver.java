@@ -28,7 +28,7 @@ public class KPKSolver extends EndgameSolver {
 		if (getLonePiece().getPieceType() == PieceType.PAWN) {
 			PawnSolver p = new PawnSolver(board);
 
-			if (p.cannotWinScenario()) {
+			if (p.cannotWinScenario(board)) {
 				return null; // Offer draw
 			}
 			return p.generateKingPawnMove();
@@ -151,56 +151,86 @@ public class KPKSolver extends EndgameSolver {
 
 			if (getTargetKingStepsToPromotionTile() > getPawnStepsToPromotion()) {
 				return makePawnMove();
-			} else if (playerKingIsOnTargetRow()) {
-				return makePawnMove(); // NEEDS REFACTORING
-			} else if (getPlayerKing().getDefendedPieces().contains(getPawn())) {
-				if (playerKingIsOnTargetRow()) {
-					// If the king defending the pawn AND on the row before the promotional rank,
-					// then it is safe to promote.
+			}
+
+			else if (playerKingIsOnTargetRow()) {
+				if (pawnWouldBeSafeAfterMove()) {
 					return makePawnMove();
-				} else if (kingIsOnPawnRow()) {
-					Move move = attemptToMoveKingUp();
-					if (!(move == null)) {
-						if (moveWouldLeadToStalemate(move)) {
-							if (pawnWouldBeSafeAfterMove()) {
-								if (moveWouldLeadToStalemate(makePawnMove())) {
-									return kingWaitingMove();
-								}
-								return makePawnMove();
-							} else {
-								throw new RuntimeException("Bad things happening.");
-							}
-						}
-						return move;
-					} else if (pawnWouldBeSafeAfterMove()) {
-						return makePawnMove();
-					} else {
-						return kingWaitingMove();
-					}
 				} else {
-					return kingWaitingMove();
+					return moveKingTowardDefense();
+				}
+			} else {
+				if (getTargetKingRow() >= getPlayerKingRow()) {
+					if (getPlayerKingColumn() > getTargetKingColumn() && (getPlayerKingColumn() < getPawnColumn()
+							|| getPlayerKingColumn() < getTargetKingColumn()
+									&& getPlayerKingColumn() > getPawnColumn())) {
+						if(getTargetKingStepsToAttack() - getPlayerKingStepsToDefense() > 2) {
+							return attemptToBlockTargetKing();
+						} else {
+							return makePawnMove();
+						}
+						
+						
+					}
+				}
+				
+				// below is last attempt at finding moves
+				Move move = tryWinningScenarios();// last attempt to generate winning position
+				if (move != null) {
+					return move;
+ 				} else {
+					if (getPlayerKingRow() == 2) {
+						Move lastDitchMove = MoveMaker.getMove(getBoard(), getPlayerKing().getPiecePosition(),
+								getPlayerKing().getPiecePosition() - 8);
+						if (lastDitchMove != null) {
+							return lastDitchMove;
+						} else {
+							return makePawnMove();
+						}
+					}
+
 				}
 
-			} else {
-				return moveKingTowardDefense();
 			}
-			// throw new RuntimeException("Bad things happening.");
+			return null; // if the code reaches here, the heuristic will claim a draw
 		}
 
-		private Move attemptToMoveKingUp() {
-			Move move = MoveMaker.getMove(getBoard(), getPlayerKing().getPiecePosition(),
-					getPlayerKing().getPiecePosition() - 8);
+		private Move attemptToBlockTargetKing() {
+			int[] idealCoordinates = { -8, -7, -9 };
+			Move kingMove = null;
 
-			if (move == null) {
-				return null;
+			if (getPlayerKingColumn() > getTargetKingColumn()) {
+				int temp = idealCoordinates[1];
+				idealCoordinates[1] = idealCoordinates[2];
+				idealCoordinates[2] = temp; // If the kings column is higher than the king, blcoking with a -9 move is
+											// more ideal than a -7 move.
 			}
 
-			Board newBoard = move.executeMoveAndBuildBoard();
+			for (int coordinate : idealCoordinates) {
+				Move move = MoveMaker.getMove(getBoard(), getPlayerKing().getPiecePosition(),
+						getPlayerKing().getPiecePosition() + coordinate);
+				if (move != null) {
+					kingMove = move;
+					break;
+				}
+			}
+
+			Board newBoard = kingMove.executeMoveAndBuildBoard();
 			if (newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck()) {
-				return move;
+				return kingMove;
+			}
+			throw new RuntimeException("Problem with moving king up");
+
+		}
+
+		public Move tryWinningScenarios() {
+			for (Move move : getBoard().getCurrentPlayer().getLegalMovesInPosition()) {
+				Board hopefulWinningBoard = move.executeMoveAndBuildBoard();
+				if (winningCaseOne(hopefulWinningBoard) || winningCaseTwo(hopefulWinningBoard)) {
+					return move;
+				}
 			}
 			return null;
-
 		}
 
 		private Move makePawnMove() {
@@ -258,7 +288,7 @@ public class KPKSolver extends EndgameSolver {
 
 			}
 
-			moveTowardRestriction = MoveMaker.getMove(this.board, getPlayerKing().getPiecePosition(),
+			moveTowardRestriction = MoveMaker.getMove(getBoard(), getPlayerKing().getPiecePosition(),
 					getPlayerKing().getPiecePosition() + direction);
 			if (pieceNotAttackedAfterMove(moveTowardRestriction)) {
 				return moveTowardRestriction;
@@ -301,11 +331,12 @@ public class KPKSolver extends EndgameSolver {
 			throw new RuntimeException("King cannot make a move!");
 		}
 
-		public boolean winningCaseOne() {
-			// very specific position which is an exception to the rule when the king is in front of the enemy pawn
+		public boolean winningCaseOne(Board board) {
+			// very specific position which is an exception to the rule when the king is in
+			// front of the enemy pawn
 			int distanceBetweenPawnAndTargetKing = getTargetKing().getPiecePosition() - getPawn().getPiecePosition();
 
-			if (getBoard().getCurrentPlayer().getAlliance() == Alliance.WHITE) {
+			if (board.getCurrentPlayer().getAlliance() == Alliance.WHITE) {
 				if (getPlayerKingRow() == 2 && !(getPlayerKing().getDefendedPieces().isEmpty())) {
 					if (distanceBetweenPawnAndTargetKing == -16) {
 						return true;
@@ -315,12 +346,13 @@ public class KPKSolver extends EndgameSolver {
 			return false;
 		}
 
-		public boolean winningCaseTwo() {
-			
+		public boolean winningCaseTwo(Board board) {
+
 			int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
-			if(getBoard().getCurrentPlayer().getAlliance() == Alliance.WHITE) {
-				if(getPlayerKingRow() == 2 && (getPawn().getPiecePosition() - 8 == getPlayerKing().getPiecePosition())) {
-					if(distanceBetweenKings == -15 || distanceBetweenKings == -17) {
+			if (board.getCurrentPlayer().getAlliance() == Alliance.WHITE) {
+				if (getPlayerKingRow() == 2
+						&& (getPawn().getPiecePosition() - 8 == getPlayerKing().getPiecePosition())) {
+					if (distanceBetweenKings == -15 || distanceBetweenKings == -17) {
 						return true;
 					}
 				}
@@ -358,9 +390,9 @@ public class KPKSolver extends EndgameSolver {
 			return BoardUtility.isPieceOnEdge(tileCoordinate);
 		}
 
-		public boolean cannotWinScenario() {
+		public boolean cannotWinScenario(Board board) {
 
-			if (winningCaseOne() || winningCaseTwo()) {
+			if (winningCaseOne(board) || winningCaseTwo(board)) {
 				return false;
 			}
 
@@ -368,11 +400,11 @@ public class KPKSolver extends EndgameSolver {
 				if (calculateKingStepsToDefendTile(getPlayerKingColumn(), getPlayerKingColumn(),
 						getPromotionTileCoordinate()) > calculateKingStepsToDefendTile(getTargetKingColumn(),
 								getTargetKingColumn(), getPromotionTileCoordinate())
-						&& (getTargetKingStepsToPromotionTile() <= getPawnStepsToPromotion())) {
-					// Rook pawn that cannot promote for free or be defended on time
+						&& (getTargetKingStepsToPromotionTile() <= getPawnStepsToPromotion()
+								|| (getTargetKingColumn() == getPawnColumn()))) {
+					// Rook pawn that cannot promote for free or be defended on time, or when king
+					// is in front of the pawn
 					return true;
-				} else if (false/* Whites king is in front of the pawn and shut in by the black king */) {
-					// implement asap
 				}
 			} else if (getPlayerKingStepsToDefense() > getTargetKingStepsToAttack()) {
 				// if the pawn can be captured before the king can defend it

@@ -25,11 +25,13 @@ import ai.KPKSolver;
 import ai.KRKSolver;
 import board.Alliance;
 import board.Board;
+import board.BoardSetups;
 import board.BoardUtility;
 import board.Move;
 import board.Move.MoveMaker;
 import board.Tile;
 import pieces.Piece;
+import pieces.Piece.PieceType;
 
 /***
  *
@@ -42,8 +44,13 @@ public class PuzzleGUI extends JFrame {
 	private ChessBoardPanel chessArea;
 	// private JPanel turnLabelPanel;
 	private JLabel turnLabel;
+	private JPanel piecePanel;
 
 	private Board currentChessBoard;
+
+	private PieceType humanSetPieceType;
+	private Alliance humanSetPieceAlliance;
+	private boolean playerWishesToClearTile;
 
 	private Piece movedPiece;
 	private Tile originTile;
@@ -58,10 +65,13 @@ public class PuzzleGUI extends JFrame {
 		populateMenus(menuBar);
 		this.puzzleGUI.setJMenuBar(menuBar);
 
-		this.currentChessBoard = Board.KPKBoardTwo();
+		this.currentChessBoard = BoardSetups.clearBoard();
 		this.puzzleGUI.add(heuristicPanel(), BorderLayout.SOUTH);
 
 		this.turnLabel = turnToMoveLabel();
+
+		this.piecePanel = new PiecePanel(this);
+		this.puzzleGUI.add(this.piecePanel, BorderLayout.EAST);
 
 		this.puzzleGUI.add(this.turnLabel, BorderLayout.NORTH); // this doesn't update
 
@@ -73,8 +83,9 @@ public class PuzzleGUI extends JFrame {
 		this.puzzleGUI.setVisible(true);
 
 		displayPurposeOfApplication();
+		displayBoardSetupInstructions();
 		displayMoveInstructions(); // Displays instruction at the launch of the application
-
+		KPKDisclaimer();
 	}
 
 	private void populateMenus(JMenuBar menuBar) {
@@ -95,7 +106,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				setCurrentChessBoard(Board.createStartingPosition());
+				setCurrentChessBoard(BoardSetups.createStartingPosition());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 			}
 		});
@@ -113,7 +124,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				setCurrentChessBoard(Board.clearBoard());
+				setCurrentChessBoard(BoardSetups.clearBoard());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 			}
 		});
@@ -129,6 +140,7 @@ public class PuzzleGUI extends JFrame {
 		final JMenu helpMenu = new JMenu("Help");
 
 		final JMenuItem moveInstructionButton = new JMenuItem("Controls/Move information");
+		final JMenuItem boardSetup = new JMenuItem("Board setup information");
 		final JMenuItem purposeOfApplicationButton = new JMenuItem("Purpose of Application.");
 
 		moveInstructionButton.addActionListener(new ActionListener() {
@@ -139,17 +151,25 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
+		
+		boardSetup.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				displayBoardSetupInstructions();
+			}
+		});
 
 		purposeOfApplicationButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				setCurrentChessBoard(Board.clearBoard());
 				displayPurposeOfApplication();
 			}
 		});
 
 		helpMenu.add(moveInstructionButton);
+		helpMenu.add(boardSetup);
 		helpMenu.add(purposeOfApplicationButton);
 		return helpMenu;
 	}
@@ -165,10 +185,24 @@ public class PuzzleGUI extends JFrame {
 				+ "\nIn the current iteration, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames."
 				+ "\nYou as the user can use this user interface to test the developed heuristics."
 				+ "\nIn the current iteration, the heuristic only works if the side with two pieces is white."
-				+ "\nIn order to test it, use the heuristic buttons at the bottom to generate a move for white."
+				+ "\n\nFURTHERMORE, EVERY SINGLE BOARD POSITION WILL START WITH WHITE TO PLAY."
+				+ "\n\nIn order to test it, use the heuristic buttons at the bottom to generate a move for white."
 				+ "\nThe heuristic will try to achieve checkmate, so your job is just to survive.");
 
 		// ADD HOW TO SETUP A BOARD WHEN DONE
+	}
+	public void displayBoardSetupInstructions() {
+		popUpDialog("How to setup a board:\n"
+				+ "\n There are two ways of setting up a board for testing:"
+				+ "\n\n#1: Use the 'Set KPK Positions' or 'Set KRK positions' "
+				+ "\nmenu at the top for predefined positions to test."
+				+ "\n\n#2: To the right hand side of the frame there is a panel to modify the board."
+				+ "\nTo add a piece to an existing board, simply click on the piece and then click on"
+				+ "\nthe unoccupied tile you wish to place it on."
+				+ "\n\nIf you have clicked on a piece and change your mind, click the 'stop placing pieces'"
+				+ "\nbutton on the panel. If you would like to remove a piece, click on the 'clear tile'"
+				+ "\nbutton and then click on the tile you wish to clear."
+				+ "\n\nIf you would like to clear the entire board, you can do so under the 'settings' menu.");
 	}
 
 	private void displayMoveInstructions() {
@@ -191,23 +225,35 @@ public class PuzzleGUI extends JFrame {
 		// optimized - remake this help message
 
 	}
+	
+	public void KPKDisclaimer() {
+		popUpDialog("KPK Disclaimer:"
+				+ "\n\nUnfortunately, the King-Pawn king solver does not have perfect implementation."
+				+ "\nIn certain situations, it may claim a draw in a winnable position."
+				+ "\nThis bug is due to the complexity of the KPK endgame, and will be addressed in future iterations.");
+	}
 
 	private JMenu setKRKPositions() {
 		final JMenu KRKMenu = new JMenu("Set KR-K Positions");
 
-		final JMenuItem playPositionOne = new JMenuItem("Play position #1");
-		final JMenuItem playPositionTwo = new JMenuItem("Play position #2");
-		final JMenuItem playPositionThree = new JMenuItem("Play position #3");
+		final JMenuItem playPositionOne = new JMenuItem("KRK position #1");
+		final JMenuItem playPositionTwo = new JMenuItem("KRK position #2");
+		final JMenuItem playPositionThree = new JMenuItem("KRK position #3");
+		final JMenuItem playPositionFour = new JMenuItem("KRK position #4");
+		final JMenuItem playPositionFive = new JMenuItem("KRK position #5");
+		
 
 		KRKMenu.add(playPositionOne);
 		KRKMenu.add(playPositionTwo);
 		KRKMenu.add(playPositionThree);
+		KRKMenu.add(playPositionFour);
+		KRKMenu.add(playPositionFive);
 
 		playPositionOne.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KRKMateInTwo());
+				setCurrentChessBoard(BoardSetups.KRKMateInTwo());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -218,7 +264,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KRKMateInFive());
+				setCurrentChessBoard(BoardSetups.KRKMateInFive());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -229,7 +275,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KRKMateInFive());
+				setCurrentChessBoard(BoardSetups.KRKMateInFive());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -240,7 +286,29 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.TestBoard());
+				setCurrentChessBoard(BoardSetups.KRKBoardThree());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+		
+		playPositionFour.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(BoardSetups.KRKBoardFour());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+		
+		playPositionFive.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(BoardSetups.KRKBoardFive());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -253,19 +321,27 @@ public class PuzzleGUI extends JFrame {
 	private JMenu setKPKPositions() {
 		final JMenu KPKMenu = new JMenu("Set KP-K Positions");
 
-		final JMenuItem KPKPositionOne = new JMenuItem("KPK position #1");
-		final JMenuItem KPKPositionTwo = new JMenuItem("KPK position #2");
-		final JMenuItem KPKPositionThree = new JMenuItem("KPK position #3");
+		final JMenuItem KPKPositionOne = new JMenuItem("Winnable KPK position #1");
+		final JMenuItem KPKPositionTwo = new JMenuItem("Winnable KPK position #2");
+		final JMenuItem KPKPositionThree = new JMenuItem("Winnable KPK position #3");
+		final JMenuItem KPKPositionFour = new JMenuItem("Draw KPK position #1");
+		final JMenuItem KPKPositionFive = new JMenuItem("Draw KPK position #2");
 
 		KPKMenu.add(KPKPositionOne);
 		KPKMenu.add(KPKPositionTwo);
 		KPKMenu.add(KPKPositionThree);
+		KPKMenu.add(KPKPositionFour);
+		KPKMenu.add(KPKPositionFive);
 
 		KPKPositionOne.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KPKBoardOne());
+				if (getHumanSetPieceAlliance() != null) {
+					System.out.println(getHumanSetPieceAlliance());
+					System.out.println(getHumanSetPieceType());
+				}
+				setCurrentChessBoard(BoardSetups.KPKBoardOne());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -276,7 +352,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KPKBoardTwo());
+				setCurrentChessBoard(BoardSetups.KPKBoardTwo());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -287,7 +363,29 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				setCurrentChessBoard(Board.KPKBoardThree());
+				setCurrentChessBoard(BoardSetups.KPKBoardThree());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+		
+		KPKPositionFour.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(BoardSetups.unKPKWinnableBoard1());
+				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+
+			}
+
+		});
+		
+		KPKPositionFive.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				setCurrentChessBoard(BoardSetups.unKPKWinnableBoard2());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
 			}
@@ -387,8 +485,6 @@ public class PuzzleGUI extends JFrame {
 
 		final List<SingleTilePanel> chessBoardPanel = new ArrayList<>(); // Use this to manipulate individual panels
 
-		final Color backgroundColor = new Color(255, 255, 255);
-
 		public ChessBoardPanel() {
 			super(new GridLayout(BoardUtility.getNumberOfTilesPerColumn(), BoardUtility.getNumberOfTilesPerColumn()));
 			for (int i = 0; i < BoardUtility.getNumberOfTiles(); i++) {
@@ -438,8 +534,24 @@ public class PuzzleGUI extends JFrame {
 					if (event.getButton() == 1) {
 						// highlight clicked square
 						// This should automattically be removed when board is redrawn after a move
-						if (getOriginTile() == null) {
-							// first click
+						if(isPlayerWishesToClearTile() && getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
+							Board newBoard = BoardSetups.removePieceFromBoard(getCurrentChessBoard(), getCurrentChessBoard().getTile(getTileCoordinate()).getPiece());
+							setCurrentChessBoard(newBoard);
+							getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+							setPlayerWishesToClearTile(false);
+						}else if (getHumanSetPieceAlliance() != null && getHumanSetPieceType() != null) {
+							if(getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
+								popUpDialog("Can't place a piece on an occupied tile!");
+							} else {
+								Board newBoard = BoardSetups.addPieceToBoard(getCurrentChessBoard(), getTileCoordinate(), getHumanSetPieceType(), getHumanSetPieceAlliance());
+								setCurrentChessBoard(newBoard);
+								getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
+								setHumanSetPieceAlliance(null);
+								setHumanSetPieceType(null);
+							}
+
+						} else if (getOriginTile() == null) {
+							// first click with no set piece
 							setBorder(new LineBorder(Color.GREEN));
 							setOriginTile(getCurrentChessBoard().getTile(getTileCoordinate()));
 							setMovedPiece(getCurrentChessBoard().getTile(getTileCoordinate()).getPiece());
@@ -450,8 +562,8 @@ public class PuzzleGUI extends JFrame {
 										boardPanel.getChessBoardPanel());
 
 							} catch (NullPointerException e) {
-								//e.printStackTrace();
-								
+								// e.printStackTrace();
+
 							}
 
 							if (getMovedPiece() == null || !(getMovedPiece()
@@ -504,7 +616,7 @@ public class PuzzleGUI extends JFrame {
 
 					}
 
-					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
+					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate() && getHumanSetPieceAlliance() == null) {
 						popUpDialog("Checkmate! Please start a new game.");
 					} else if (getCurrentChessBoard().getCurrentPlayer().isStaleMate()) { // DOES NOT WORK
 						popUpDialog("Stalemate! Please start a new game.");
@@ -550,13 +662,13 @@ public class PuzzleGUI extends JFrame {
 
 		public void highlightLegalMoves(List<Move> legalMovesForPiece, List<SingleTilePanel> chessBoardPanels) {
 			for (Move move : legalMovesForPiece) {
-				Board potentialBoard =move.executeMoveAndBuildBoard();	
-				if((potentialBoard.getOpponent(potentialBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck())) {
+				Board potentialBoard = move.executeMoveAndBuildBoard();
+				if ((potentialBoard.getOpponent(potentialBoard.getCurrentPlayer().getAlliance()).getIsNotInCheck())) {
 					int highlightCoordinate = move.getDestinationTileCoordinate();
 					highlightTileForMove(chessBoardPanels.get(highlightCoordinate));
 
 				}
-			
+
 			}
 		}
 
@@ -615,6 +727,14 @@ public class PuzzleGUI extends JFrame {
 
 	}
 
+	public boolean isPlayerWishesToClearTile() {
+		return playerWishesToClearTile;
+	}
+
+	public void setPlayerWishesToClearTile(boolean playerWishesToClearTile) {
+		this.playerWishesToClearTile = playerWishesToClearTile;
+	}
+
 	public Board getCurrentChessBoard() {
 		return currentChessBoard;
 	}
@@ -653,6 +773,22 @@ public class PuzzleGUI extends JFrame {
 
 	public JLabel getTurnLabel() {
 		return turnLabel;
+	}
+
+	public PieceType getHumanSetPieceType() {
+		return humanSetPieceType;
+	}
+
+	public void setHumanSetPieceType(PieceType humanSetPieceType) {
+		this.humanSetPieceType = humanSetPieceType;
+	}
+
+	public Alliance getHumanSetPieceAlliance() {
+		return humanSetPieceAlliance;
+	}
+
+	public void setHumanSetPieceAlliance(Alliance humanSetPieceAlliance) {
+		this.humanSetPieceAlliance = humanSetPieceAlliance;
 	}
 
 }
