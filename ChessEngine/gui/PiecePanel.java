@@ -10,8 +10,15 @@ import javax.swing.JPanel;
 import board.Alliance;
 import pieces.Piece.PieceType;
 
+/**
+ * This class is responsible for representing the board setup panel on the right
+ * side of the frame. ActionListeners are used on each grid to inform the
+ * puzzleGUI class of which piece to put on which tile.
+ * 
+ ***/
+
 public class PiecePanel extends JPanel {
-	
+
 	PuzzleGUI puzzleGUI;
 
 	public PiecePanel(PuzzleGUI puzzleGUI) {
@@ -36,7 +43,7 @@ public class PiecePanel extends JPanel {
 		JButton blackPawn = new JButton("\u265F");
 		JButton clearTile = new JButton("Clear Tile");
 		JButton stopPlacing = new JButton("Stop placing pieces");
-		
+
 		whiteKing.setFont(getFont().deriveFont(48f));
 		blackKing.setFont(getFont().deriveFont(48f));
 		whiteRook.setFont(getFont().deriveFont(48f));
@@ -184,7 +191,7 @@ public class PiecePanel extends JPanel {
 			}
 
 		});
-		
+
 		blackPawn.addActionListener(new ActionListener() {
 
 			@Override
@@ -194,7 +201,7 @@ public class PiecePanel extends JPanel {
 			}
 
 		});
-		
+
 		clearTile.addActionListener(new ActionListener() {
 
 			@Override
@@ -215,7 +222,5 @@ public class PiecePanel extends JPanel {
 
 		});
 	}
-
-
 
 }

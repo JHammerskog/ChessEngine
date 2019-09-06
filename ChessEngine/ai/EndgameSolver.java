@@ -46,7 +46,7 @@ public class EndgameSolver {
 
 	public int generateBestMatingEdge() { // Only works for mate on 1st and 8th rank currently
 		int matingEdge = -1;
-		int bestRow = -1;
+		// int bestRow = -1;
 		// int bestColumn = -1;
 
 		int targetKingRow = getTargetKingRow();
@@ -67,8 +67,8 @@ public class EndgameSolver {
 
 		return matingEdge;
 	}
-	
-	public Move makeKingRestrictingMove() { // Exception handling needed
+
+	public Move makeKingRestrictingMove() { // More exception handling needed
 		Move kingRestrictingMove = null;
 
 		if (!getPinAgainstColumn()) {
@@ -91,8 +91,9 @@ public class EndgameSolver {
 
 		throw new RuntimeException("Needs attention");
 	}
-	
-	public Move moveKingTowardRestrictingRow() { // Breaks down when piece is in the way or king moves into check
+
+	public Move moveKingTowardRestrictingRow() { // method flaw: This method does not check whether the move is possible
+													// before returning it, fix asap.
 		Move moveTowardRestriction = null;
 
 		int targetKingRowOrColumn = -1;
@@ -131,7 +132,7 @@ public class EndgameSolver {
 
 		throw new RuntimeException("NEEDS ATTENTION");
 	}
-	
+
 	public boolean kingsAreInOpposition() { // Works and needed
 
 		int distanceBetweenKings = getTargetKing().getPiecePosition() - getPlayerKing().getPiecePosition();
@@ -149,7 +150,7 @@ public class EndgameSolver {
 		}
 		return false;
 	}
-	
+
 	public boolean isKingOnRestrictingRow(int matingEdge) {
 
 		if (!getPinAgainstColumn()) {
@@ -170,9 +171,8 @@ public class EndgameSolver {
 		}
 		return false;
 	}
-	
 
-	public boolean pieceNotAttackedAfterMove(Move madeMove) {
+	public boolean pieceNotAttackedAfterMove(Move madeMove) { // necessary to determine whether a piece is safe
 		Board newBoard = madeMove.executeMoveAndBuildBoard();
 
 		if (newBoard.getCurrentPlayer().attacksOnTile(newBoard.getCurrentPlayer().getLegalMovesInPosition(),
@@ -182,7 +182,7 @@ public class EndgameSolver {
 		return false;
 	}
 
-	public boolean moveWouldLeadToStalemate(Move madeMove) {
+	public boolean moveWouldLeadToStalemate(Move madeMove) {// necessary to avoid stalemate
 		Board newBoard = madeMove.executeMoveAndBuildBoard();
 
 		if (newBoard.getCurrentPlayer().isStaleMate()) {

@@ -10,6 +10,13 @@ import pieces.Piece.PieceType;
 import pieces.Queen;
 import pieces.Rook;
 
+/***
+ * 
+ * This class is used by the puzzleGUI.java and the unit tests to create
+ * specific pre-defined board positions.
+ *
+ */
+
 public class BoardSetups {
 
 	// player set Position
@@ -160,7 +167,7 @@ public class BoardSetups {
 
 		return b.build();
 	}
-	
+
 	public static Board KRKBoardFour() {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
@@ -172,7 +179,7 @@ public class BoardSetups {
 
 		return b.build();
 	}
-	
+
 	public static Board KRKBoardFive() {
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
@@ -225,8 +232,9 @@ public class BoardSetups {
 
 		return b.build();
 	}
-	
-	public static Board unKPKWinnableBoard1() { // This crashes the player class, try/catch the findKing() method and refactor
+
+	public static Board unKPKWinnableBoard1() { // This crashes the player class, try/catch the findKing() method and
+												// refactor
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 
@@ -237,7 +245,9 @@ public class BoardSetups {
 
 		return b.build();
 	}
-	public static Board unKPKWinnableBoard2() { // This crashes the player class, try/catch the findKing() method and refactor
+
+	public static Board unKPKWinnableBoard2() { // This crashes the player class, try/catch the findKing() method and
+												// refactor
 		final Builder b = new Builder();
 		b.setNextPlayerToMove(Alliance.WHITE);
 

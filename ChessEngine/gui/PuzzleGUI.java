@@ -34,7 +34,16 @@ import pieces.Piece;
 import pieces.Piece.PieceType;
 
 /***
- *
+ * This class handles the majority of the logic for the graphical user
+ * interface. Because of the coupling between the different panels in the
+ * JFrame, all the relevant classes have been included in this puzzleGUI.java
+ * file.
+ * 
+ * The ChessBoardPanel is responsible the logic representing the board using a
+ * gridbag layout. The SingleTilePanel is responsible for representing each tile
+ * and the logic on the pieces. Furthermore, each SingleTilePanel has a mouse
+ * listener which responds differently depending on what the user is trying to
+ * do.
  * 
  ***/
 
@@ -65,7 +74,7 @@ public class PuzzleGUI extends JFrame {
 		populateMenus(menuBar);
 		this.puzzleGUI.setJMenuBar(menuBar);
 
-		this.currentChessBoard = BoardSetups.clearBoard();
+		this.currentChessBoard = BoardSetups.KRKMateInTwo();
 		this.puzzleGUI.add(heuristicPanel(), BorderLayout.SOUTH);
 
 		this.turnLabel = turnToMoveLabel();
@@ -83,8 +92,6 @@ public class PuzzleGUI extends JFrame {
 		this.puzzleGUI.setVisible(true);
 
 		displayPurposeOfApplication();
-		displayBoardSetupInstructions();
-		displayMoveInstructions(); // Displays instruction at the launch of the application
 		KPKDisclaimer();
 	}
 
@@ -141,7 +148,7 @@ public class PuzzleGUI extends JFrame {
 
 		final JMenuItem moveInstructionButton = new JMenuItem("Controls/Move information");
 		final JMenuItem boardSetup = new JMenuItem("Board setup information");
-		final JMenuItem purposeOfApplicationButton = new JMenuItem("Purpose of Application.");
+		final JMenuItem purposeOfApplicationButton = new JMenuItem("Purpose of Application");
 
 		moveInstructionButton.addActionListener(new ActionListener() {
 
@@ -151,7 +158,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		boardSetup.addActionListener(new ActionListener() {
 
 			@Override
@@ -185,15 +192,22 @@ public class PuzzleGUI extends JFrame {
 				+ "\nIn the current iteration, the application can tackle the King-Rook vs King(KRK) and the King-Pawn vs King (KPK) endgames."
 				+ "\nYou as the user can use this user interface to test the developed heuristics."
 				+ "\nIn the current iteration, the heuristic only works if the side with two pieces is white."
-				+ "\n\nFURTHERMORE, EVERY SINGLE BOARD POSITION WILL START WITH WHITE TO PLAY."
+
+				+ "\n\nVITAL INFORMATION:\n"
+				+ "\nIN THE CURRENT ITERATION, THE HEURISTIC IS ONLY APPLICABLE TO WHITE BEING THE SIDE WITH TWO PIECES."
+				+ "\nFURTHERMORE, EVERY SINGLE BOARD POSITION WILL START WITH WHITE TO PLAY."
 				+ "\n\nIn order to test it, use the heuristic buttons at the bottom to generate a move for white."
-				+ "\nThe heuristic will try to achieve checkmate, so your job is just to survive.");
+				+ "\nThe heuristic will try to achieve checkmate, so your job is just to survive." + "\n\nMenus:"
+				+ "\nIf at any point you want to change the game settings, or you would like to view this message again,"
+				+ "\nsimply navigate to the menu bar at the top."
+				+ "\nIn order to receive instructions on how to move and how to set up a board,"
+				+ "\nplease navigate to the 'Help' menu above.");
 
 		// ADD HOW TO SETUP A BOARD WHEN DONE
 	}
+
 	public void displayBoardSetupInstructions() {
-		popUpDialog("How to setup a board:\n"
-				+ "\n There are two ways of setting up a board for testing:"
+		popUpDialog("How to setup a board:\n" + "\n There are two ways of setting up a board for testing:"
 				+ "\n\n#1: Use the 'Set KPK Positions' or 'Set KRK positions' "
 				+ "\nmenu at the top for predefined positions to test."
 				+ "\n\n#2: To the right hand side of the frame there is a panel to modify the board."
@@ -202,7 +216,10 @@ public class PuzzleGUI extends JFrame {
 				+ "\n\nIf you have clicked on a piece and change your mind, click the 'stop placing pieces'"
 				+ "\nbutton on the panel. If you would like to remove a piece, click on the 'clear tile'"
 				+ "\nbutton and then click on the tile you wish to clear."
-				+ "\n\nIf you would like to clear the entire board, you can do so under the 'settings' menu.");
+				+ "\n\nIf you would like to clear the entire board, you can do so under the 'settings' menu."
+				+ "\n\nVITAL INFORMATION:\n"
+				+ "\nIN THE CURRENT ITERATION, THE HEURISTIC IS ONLY APPLICABLE TO WHITE BEING THE SIDE WITH TWO PIECES."
+				+ "\nFURTHERMORE, EVERY SINGLE BOARD POSITION WILL START WITH WHITE TO PLAY.");
 	}
 
 	private void displayMoveInstructions() {
@@ -217,20 +234,20 @@ public class PuzzleGUI extends JFrame {
 				+ "\nAt the bottom of this frame, there are some buttons which enable you to generate a heuristic move."
 				+ "\nAs the user, you are able to move as both white and black if you wish. "
 				+ "\nHowever, if you would like to test one of the developed heuristics simply click on the button that"
-				+ "\n corresponds to the endgame puzzle you would like to solve." + "\n\nMenus: \n"
-				+ "\nIf at any point you want to change the game settings, or you would like to view this message again,"
-				+ "\nsimply navigate to the menu bar at the top.");
+				+ "\n corresponds to the endgame puzzle you would like to solve." + "\n\nVITAL INFORMATION:\n"
+				+ "\nIN THE CURRENT ITERATION, THE HEURISTIC IS ONLY APPLICABLE TO WHITE BEING THE SIDE WITH TWO PIECES."
+				+ "\nFURTHERMORE, EVERY SINGLE BOARD POSITION WILL START WITH WHITE TO PLAY.");
 
 		// When development of KPK and KRK is finished, and the GUI has been fully
 		// optimized - remake this help message
 
 	}
-	
+
 	public void KPKDisclaimer() {
 		popUpDialog("KPK Disclaimer:"
 				+ "\n\nUnfortunately, the King-Pawn king solver does not have perfect implementation."
 				+ "\nIn certain situations, it may claim a draw in a winnable position."
-				+ "\nThis bug is due to the complexity of the KPK endgame, and will be addressed in future iterations.");
+				+ "\nThis bug is due to the complexity of the KPK endgame, and should be addressed in future iterations.");
 	}
 
 	private JMenu setKRKPositions() {
@@ -241,7 +258,6 @@ public class PuzzleGUI extends JFrame {
 		final JMenuItem playPositionThree = new JMenuItem("KRK position #3");
 		final JMenuItem playPositionFour = new JMenuItem("KRK position #4");
 		final JMenuItem playPositionFive = new JMenuItem("KRK position #5");
-		
 
 		KRKMenu.add(playPositionOne);
 		KRKMenu.add(playPositionTwo);
@@ -292,7 +308,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		playPositionFour.addActionListener(new ActionListener() {
 
 			@Override
@@ -303,7 +319,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		playPositionFive.addActionListener(new ActionListener() {
 
 			@Override
@@ -324,8 +340,8 @@ public class PuzzleGUI extends JFrame {
 		final JMenuItem KPKPositionOne = new JMenuItem("Winnable KPK position #1");
 		final JMenuItem KPKPositionTwo = new JMenuItem("Winnable KPK position #2");
 		final JMenuItem KPKPositionThree = new JMenuItem("Winnable KPK position #3");
-		final JMenuItem KPKPositionFour = new JMenuItem("Draw KPK position #1");
-		final JMenuItem KPKPositionFive = new JMenuItem("Draw KPK position #2");
+		final JMenuItem KPKPositionFour = new JMenuItem("Showcase drawn KPK position #1");
+		final JMenuItem KPKPositionFive = new JMenuItem("Showcase drawn KPK position #2");
 
 		KPKMenu.add(KPKPositionOne);
 		KPKMenu.add(KPKPositionTwo);
@@ -337,10 +353,7 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (getHumanSetPieceAlliance() != null) {
-					System.out.println(getHumanSetPieceAlliance());
-					System.out.println(getHumanSetPieceType());
-				}
+
 				setCurrentChessBoard(BoardSetups.KPKBoardOne());
 				getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 
@@ -369,7 +382,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		KPKPositionFour.addActionListener(new ActionListener() {
 
 			@Override
@@ -380,7 +393,7 @@ public class PuzzleGUI extends JFrame {
 			}
 
 		});
-		
+
 		KPKPositionFive.addActionListener(new ActionListener() {
 
 			@Override
@@ -400,8 +413,8 @@ public class PuzzleGUI extends JFrame {
 		JLabel moveLogLabel = new JLabel("Click when White's turn");
 		heuristicPanel.add(moveLogLabel);
 
-		JButton makeKRKMove = new JButton("Make KRKMove");
-		JButton makeKPKMove = new JButton("Make KPKMove");
+		JButton makeKRKMove = new JButton("Make King-Rook Move");
+		JButton makeKPKMove = new JButton("Make King-Pawn Move");
 		heuristicPanel.add(makeKRKMove);
 		heuristicPanel.add(makeKPKMove);
 
@@ -409,7 +422,9 @@ public class PuzzleGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				long startTime = System.currentTimeMillis();
 				try {
+
 					KRKSolver k = new KRKSolver(getCurrentChessBoard());
 					Move AIMove = k.generateRestrictingMove(getCurrentChessBoard());
 
@@ -418,6 +433,9 @@ public class PuzzleGUI extends JFrame {
 						setCurrentChessBoard(newBoard);
 						getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 					}
+					long endTime = System.currentTimeMillis() - startTime;
+
+					System.out.println("This took me: " + endTime + " milliseconds to compute!");
 					if (getCurrentChessBoard().getCurrentPlayer().isCheckMate()) {
 						popUpDialog("Checkmate! Please start a new game.");
 					}
@@ -426,6 +444,7 @@ public class PuzzleGUI extends JFrame {
 					e.printStackTrace();
 					popUpDialog("This heuristic only works for the side with both a king and a rook!");
 				}
+
 			}
 
 		});
@@ -534,16 +553,19 @@ public class PuzzleGUI extends JFrame {
 					if (event.getButton() == 1) {
 						// highlight clicked square
 						// This should automattically be removed when board is redrawn after a move
-						if(isPlayerWishesToClearTile() && getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
-							Board newBoard = BoardSetups.removePieceFromBoard(getCurrentChessBoard(), getCurrentChessBoard().getTile(getTileCoordinate()).getPiece());
+						if (isPlayerWishesToClearTile()
+								&& getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
+							Board newBoard = BoardSetups.removePieceFromBoard(getCurrentChessBoard(),
+									getCurrentChessBoard().getTile(getTileCoordinate()).getPiece());
 							setCurrentChessBoard(newBoard);
 							getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 							setPlayerWishesToClearTile(false);
-						}else if (getHumanSetPieceAlliance() != null && getHumanSetPieceType() != null) {
-							if(getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
+						} else if (getHumanSetPieceAlliance() != null && getHumanSetPieceType() != null) {
+							if (getCurrentChessBoard().getTile(getTileCoordinate()).tileIsOccupied()) {
 								popUpDialog("Can't place a piece on an occupied tile!");
 							} else {
-								Board newBoard = BoardSetups.addPieceToBoard(getCurrentChessBoard(), getTileCoordinate(), getHumanSetPieceType(), getHumanSetPieceAlliance());
+								Board newBoard = BoardSetups.addPieceToBoard(getCurrentChessBoard(),
+										getTileCoordinate(), getHumanSetPieceType(), getHumanSetPieceAlliance());
 								setCurrentChessBoard(newBoard);
 								getChessArea().reDrawBoardAfterMove(getCurrentChessBoard());
 								setHumanSetPieceAlliance(null);

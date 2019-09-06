@@ -10,6 +10,19 @@ import board.Move.MoveMaker;
 import pieces.Piece;
 import pieces.Piece.PieceType;
 
+/***
+ * This class will contain the logic for solving a King-Pawn vs King endgame and
+ * inherits from the EndgameSolver class.
+ * 
+ * This endgame has a plethora of exceptions and edge-cases, and is not perfect
+ * in its current implementation.
+ * 
+ * This heuristic will ONLY work on a board with ONLY three pieces as described
+ * above. Currently, this King-Pawn vs King solver can solve the majority of KPK
+ * puzzles given to it.
+ * 
+ ***/
+
 public class KPKSolver extends EndgameSolver {
 
 	private final Piece lonePiece;
@@ -19,8 +32,6 @@ public class KPKSolver extends EndgameSolver {
 
 		this.lonePiece = findLonePiece(board.getCurrentPlayer().getActivePieces());
 
-		// check for cannotWinScenarios() last thing in constructor?
-
 	}
 
 	public Move generateKPKMove(Board board) {
@@ -28,7 +39,8 @@ public class KPKSolver extends EndgameSolver {
 		if (getLonePiece().getPieceType() == PieceType.PAWN) {
 			PawnSolver p = new PawnSolver(board);
 
-			if (p.cannotWinScenario(board)) {
+			if (p.cannotWinScenario(board)) { // If the piece is a pawn, there are many unwinnable positions which are
+												// checked for here
 				return null; // Offer draw
 			}
 			return p.generateKingPawnMove();
@@ -104,7 +116,7 @@ public class KPKSolver extends EndgameSolver {
 		throw new RuntimeException("This heuristic only works for a King-Pawn vs. King endgame");
 	}
 
-	// Getters and setter
+	// Getter
 
 	public Piece getLonePiece() {
 		return lonePiece;
@@ -144,10 +156,7 @@ public class KPKSolver extends EndgameSolver {
 
 		}
 
-		public Move generateKingPawnMove() {
-
-			// while playerKing is able to defend pawn before capture OR pawn can promote
-			// before capture:
+		public Move generateKingPawnMove() { // Main function responsible for generating a kingPawn move
 
 			if (getTargetKingStepsToPromotionTile() > getPawnStepsToPromotion()) {
 				return makePawnMove();
@@ -161,24 +170,25 @@ public class KPKSolver extends EndgameSolver {
 				}
 			} else {
 				if (getTargetKingRow() >= getPlayerKingRow()) {
-					if (getPlayerKingColumn() > getTargetKingColumn() && (getPlayerKingColumn() < getPawnColumn()
-							|| getPlayerKingColumn() < getTargetKingColumn()
+					if (getPlayerKingColumn() > getTargetKingColumn()
+							&& (getPlayerKingColumn() < getPawnColumn() || getPlayerKingColumn() < getTargetKingColumn()
 									&& getPlayerKingColumn() > getPawnColumn())) {
-						if(getTargetKingStepsToAttack() - getPlayerKingStepsToDefense() > 2) {
+						if (getTargetKingStepsToAttack() - getPlayerKingStepsToDefense() > 2) {
 							return attemptToBlockTargetKing();
 						} else {
 							return makePawnMove();
 						}
-						
-						
+
 					}
 				}
-				
-				// below is last attempt at finding moves
+
 				Move move = tryWinningScenarios();// last attempt to generate winning position
 				if (move != null) {
 					return move;
- 				} else {
+				} else {
+
+					// The below code should only be run if the heuristics encounter a supposed
+					// winning situation but can't generate any of its preferred moves.
 					if (getPlayerKingRow() == 2) {
 						Move lastDitchMove = MoveMaker.getMove(getBoard(), getPlayerKing().getPiecePosition(),
 								getPlayerKing().getPiecePosition() - 8);
@@ -244,7 +254,6 @@ public class KPKSolver extends EndgameSolver {
 			// This method only works for a white pawn
 			// When adding functionality for play as black, do +8 instead
 
-			// throw new RuntimeException("Pawn was asked to make a bad move!");
 			return null;
 		}
 
@@ -506,7 +515,7 @@ public class KPKSolver extends EndgameSolver {
 			this.targetKingOnMatingRow = getTargetKingRow() == getMatingEdge();
 		}
 
-		public Move generateKingQueenMove() {
+		public Move generateKingQueenMove() { // function called to generate a king-queen move
 
 			if (isTargetKingOnMatingRow()) {
 				if (isQueenPinningTargetKingAgainstMatingRow()) {
@@ -553,7 +562,8 @@ public class KPKSolver extends EndgameSolver {
 
 			if (getMatingEdge() == 0) {
 				// don't change
-			} else if (getMatingEdge() == 7) {
+			} else if (getMatingEdge() == 7) { // If mating on the bottom row, the desired coordinates are above instead
+												// of below the king.
 				desiredCoordinates[0] = -desiredCoordinates[0];
 				desiredCoordinates[1] = -desiredCoordinates[1];
 			}
@@ -584,15 +594,16 @@ public class KPKSolver extends EndgameSolver {
 		}
 
 		public Move makeQueenSafetyMove() {
-			int direction = 1337;
+			int desiredRowDirection = 1337;
 
 			if (getMatingEdge() == 0) {
-				direction = 1;
+				desiredRowDirection = 1;
 			} else {
-				direction = -1;
+				desiredRowDirection = -1;
 			}
 			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) { // good move
-				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == getTargetKingRow() + direction) {
+				if (BoardUtility.calculateRow(move.getDestinationTileCoordinate()) == getTargetKingRow()
+						+ desiredRowDirection) {
 					Board newBoard = move.executeMoveAndBuildBoard();
 					Piece newQueen = findLonePiece(
 							newBoard.getOpponent(newBoard.getCurrentPlayer().getAlliance()).getActivePieces());
@@ -606,7 +617,10 @@ public class KPKSolver extends EndgameSolver {
 					}
 				}
 			}
-			// move to not crash the program
+			// if the above loop does not generate a move, then this funtion simply returns
+			// a legal queen move which is safe. This will generate a new position where it
+			// is extremely likely that the heuristic will be able to generate a winning
+			// move.
 			for (Move move : getPlayerQueen().calculateLegalMoves(getBoard())) {
 				Board newBoard = move.executeMoveAndBuildBoard();
 				Piece newQueen = findLonePiece(
@@ -651,8 +665,6 @@ public class KPKSolver extends EndgameSolver {
 					return move;
 				}
 			}
-			// throw new RuntimeException("No move like that exists! This method needs
-			// attention");
 			return null;
 		}
 

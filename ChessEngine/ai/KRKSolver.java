@@ -22,8 +22,7 @@ public class KRKSolver extends EndgameSolver {
 	 * 
 	 * This heuristic will ONLY work on a board with ONLY three pieces as described
 	 * above. Currently, this King-Rook vs King solver can solve all KRK puzzles
-	 * given to it, except for ones described in the "known bugs" section just
-	 * below.
+	 * given to it.
 	 * 
 	 * In this iteration, working on being able to mate the opponents king on the
 	 * vertical edges of the board has been de-prioritized in favour of developing
@@ -56,7 +55,7 @@ public class KRKSolver extends EndgameSolver {
 
 	}
 
-	public Move generateRestrictingMove(Board board) {
+	public Move generateRestrictingMove(Board board) { // called to generate a king-rook move
 
 		if (!isRookAtMaximumRestriction()) {
 			return moveRookToMaximumRestriction();

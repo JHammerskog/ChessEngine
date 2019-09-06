@@ -7,7 +7,7 @@ import player.Player;
 public class MiniMax {
 
 	/***
-	 * This is ai is based on a simple minimax recursive algorithm. It scores
+	 * This ai is based on a simple minimax recursive algorithm. It scores
 	 * potential boards, and returns the move that leads to the board with the best
 	 * possible outcome for the player. Able to solve the KRKMateInTwo() Board.
 	 * 

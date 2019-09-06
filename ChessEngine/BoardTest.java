@@ -7,13 +7,14 @@ import ai.KPKSolver.PawnSolver;
 import ai.KRKSolver;
 import ai.MiniMax;
 import board.Board;
+import board.BoardSetups;
 import board.Move;
 
 public class BoardTest {
 
 	@Test
 	public void testStartingLegalMoves() {
-		Board b = Board.createStartingPosition();
+		Board b = BoardSetups.createStartingPosition();
 		int whiteLegalMoves = 0;
 		int blackLegalMoves = 0;
 
@@ -44,8 +45,8 @@ public class BoardTest {
 
 	@Test
 	public void testStaleAndCheckmate() {
-		Board b = Board.CheckmateBoard();
-		Board b1 = Board.StaleMateBoard();
+		Board b = BoardSetups.CheckmateBoard();
+		Board b1 = BoardSetups.StaleMateBoard();
 
 		assertTrue("Position should be checkmate", b.getCurrentPlayer().isCheckMate());
 		assertTrue("Position should be stalemate", b1.getCurrentPlayer().isStaleMate());
@@ -54,17 +55,24 @@ public class BoardTest {
 
 	@Test
 	public void testMiniMax() { // Testing a simple mate-in-two puzzle
-		Board b = Board.KRKMateInTwo();
-		MiniMax m = new MiniMax(2);
+		Board b = BoardSetups.KRKMateInTwo();
+		
+		long startTime = System.currentTimeMillis();
+		
+		MiniMax m = new MiniMax(3);
 
-		Move bestMove = m.minimax(2, true, b); // should be Rook to tile 29
+		Move bestMove = m.minimax(3, true, b); // should be Rook to tile 29
 		Board b1 = bestMove.executeMoveAndBuildBoard();
 
-		Move bestMove1 = m.minimax(2, false, b1); // Only legal move is King to tile 3
+		Move bestMove1 = m.minimax(3, false, b1); // Only legal move is King to tile 3
 		Board b2 = bestMove1.executeMoveAndBuildBoard();
 
-		Move bestMove2 = m.minimax(2, true, b2); // Should be rook to tile 5, checkmate
+		Move bestMove2 = m.minimax(3, true, b2); // Should be rook to tile 5, checkmate
 		Board b3 = bestMove2.executeMoveAndBuildBoard();
+		
+		long endTime = System.currentTimeMillis() - startTime;
+
+		System.out.println("This took me: " + endTime + " milliseconds to compute!");
 
 		assertEquals("bestMove destinationtile should be 29", 29, bestMove.getDestinationTileCoordinate());
 		assertEquals("bestMove1 destinationtile should be 3", 3, bestMove1.getDestinationTileCoordinate());
@@ -76,7 +84,7 @@ public class BoardTest {
 	@Test
 	public void testKRKGenerateMoveInLessThanOneSecond() {
 
-		Board testBoard = Board.KRKMateInFive();
+		Board testBoard = BoardSetups.KRKMateInFive();
 
 		long startTime = System.currentTimeMillis();
 
@@ -87,7 +95,7 @@ public class BoardTest {
 		long endTime = System.currentTimeMillis() - startTime;
 		assertTrue("Movecounter should be less than 50", endTime < 1000);
 
-		Board testBoard1 = Board.KRKMateInTwo();
+		Board testBoard1 = BoardSetups.KRKMateInTwo();
 
 		long startTime1 = System.currentTimeMillis();
 
@@ -98,7 +106,7 @@ public class BoardTest {
 		long endTime1 = System.currentTimeMillis() - startTime;
 		assertTrue("Movecounter should be less than 50", endTime1 < 1000);
 		
-		Board testBoard2 = Board.KPKBoardOne();
+		Board testBoard2 = BoardSetups.KPKBoardOne();
 
 		long startTime2 = System.currentTimeMillis();
 
@@ -109,7 +117,7 @@ public class BoardTest {
 		long endTime2 = System.currentTimeMillis() - startTime;
 		assertTrue("Movecounter should be less than 50", endTime2 < 1000);
 		
-		Board testBoard3 = Board.KPKBoardOne();
+		Board testBoard3 = BoardSetups.KPKBoardOne();
 
 		long startTime3 = System.currentTimeMillis();
 
@@ -123,7 +131,7 @@ public class BoardTest {
 	}
 	@Test
 	public void testKPKEvaluator() {
-		Board testBoard = Board.KPKBoardOne();
+		Board testBoard = BoardSetups.KPKBoardOne();
 		KPKSolver k = new KPKSolver(testBoard);
 		
 		Move move = k.generateKPKMove(testBoard);

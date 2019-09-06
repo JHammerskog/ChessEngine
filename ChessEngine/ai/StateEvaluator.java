@@ -4,10 +4,19 @@ import board.Board;
 import pieces.Piece;
 import player.Player;
 
+/***
+ * 
+ * This class evaluates and scores a board depending on number of pieces and
+ * possibility of checkmate.
+ *
+ * This class would benefit from further evaluation functions in future
+ * iterations.
+ *
+ */
+
 public class StateEvaluator {
 
 	private int checkmateScore = 1000000;
-	// TODO A lot more evaluating (bonus scores for check, depth etc)
 
 	public int scorePosition(Board board, int depth) {
 		int positionScore = scorePlayer(board, board.getWhitePlayer(), depth)

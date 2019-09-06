@@ -1,12 +1,13 @@
 package board;
 
 /***
- * Constant player types that will never change
+ * This enumeration is used to represent unchanging player logic which form the functional
+ * requirements and implementation of player in games of chess.
  ***/
 
 //consider moving this to different package
 
-public enum Alliance { 
+public enum Alliance {
 
 	WHITE {
 
@@ -42,10 +43,11 @@ public enum Alliance {
 		public boolean isPromotionRow(int tileCoordinate) {
 			return BoardUtility.calculateRow(tileCoordinate) == 7;
 		}
-		
+
 	};
 	public abstract Alliance getOpponent();
+
 	public abstract boolean isPromotionRow(int tileCoordinate);
+
 	public abstract String toString();
 }
-
